@@ -8,4 +8,4 @@ while True:
 	for item in new:
 		subprocess.Popen(item, shell=True)
 		server.finish(node_name, item)
-	time.sleep(0.5)
+	time.sleep(2)

@@ -1,10 +1,66 @@
-import xmlrpclib
-nodeID = "7e461c30-a191-11e2-9e96-0800200c9a66"
+import xmlrpclib, socket
+nodeID = ""
+svr_con = False
 
-server = xmlrpclib.Server('http://localhost:8000')
-server.register_control(nodeID)
-server.create_node("slave", nodeID)
-server.load_task("slave","git status",nodeID)
-server.load_task("slave","git push",nodeID)
-server.load_task("slave","git --version", nodeID)
-print server.get_nodes(nodeID)
+class initialize():
+	# check if the server variable is defined
+	# or remains False.
+	def __init__(self):
+		if svr_con:
+			pass
+		else:
+			return False
+
+	# is the main shell.
+	def shell(self):
+		while True:
+			command = raw_input("> ")
+			try:
+				call, args = command.split(":")
+				if call == "load":
+					try:
+						node, task = args.split("=")
+						if server.load_task(node, task, nodeID):
+							print "Loaded Task %s at node: %s" % (task, node)
+					except ValueError:
+						print ">> Invalid Parameters."
+				elif call == "create":
+					if server.create_node(args, nodeID):
+						print "Created node: %s" % (args)
+				elif call == "kill":
+					if server.kill_node(args, nodeID):
+						print "Killed node: %s" % (args)
+				else:
+					print ">> Invalid Command."
+
+			except ValueError:
+				if command == "exit":
+					exit()
+				elif command == "list":
+					n = server.get_nodes(nodeID)
+					if n:
+						for item in n:
+							print "Stack [%s]:" % (item)
+							if n[item] == nodeID:
+								print "\t Control Stack"
+							else:
+								for item in n[item]:
+									print "\t" + item
+				else:
+					print ">> Invalid Command."
+
+print ("Control Node Interface (CNI) v0.0.1 (10 4 2013)")
+print ("Written by Eugene Eeo [http://eugene-eeo.github.com]")
+svr_url = str(raw_input("Server URL: "))
+port = str(raw_input("Server Port: "))
+try:
+	server = xmlrpclib.Server('%s:%s' % (svr_url, port))
+	nodeID = raw_input("Node ID: ")
+	if server.register_control(nodeID):
+		print ">> Registred as Control Node. at %s" % (server.get_server_name())
+		svr_con = True
+		initialize().shell()
+	else:
+		print ">> Invalid Node ID. Cannot register as Control Node."
+except socket.error as error:
+	print ">>" + str(error)
