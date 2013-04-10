@@ -57,10 +57,10 @@ USING NODE AS A DEVELOPMENT PLATFORM
 
 
 
-April 10, 2013
+April 11, 2013
 
 
-First Edition (No Revision)
+First Edition (1st Revision)
 
 
 
@@ -171,10 +171,20 @@ main-app       python "status.py"                      1.0s
 		The CNI Interface (Control Node Interface): <a href="http://eugene-eeo.github.com/node/control.py">http://eugene-eeo.github.com/node/control.py</a><br/>
 		Node v0.0.1 [Release 2]: <a href="http://eugene-eeo.github.com/node/node.py">http://eugene-eeo.github.com/node/node.py</a><br/>
 		Default Worker Node: <a href="http://eugene-eeo.github.com/node/slave.py">http://eugene-eeo.github.com/node/slave.py</a>
+<p>
+	<b>4.9 DAEMONS</b>
+	<p>
+		While Node is primarily a single-task based server platform, you can always run certain of the tasks as a daemon, see the code below:
+		<pre>
+x = subprocess.Popen(item, shell=True).pid</pre>
+		Which runs your task as a daemon, and it can be easily managed or killed via the following code snippet:
+		<pre>
+os.popen("kill %s" % (str(x)))</pre>
+		Which will kill the process.
 
 <p>
 <table width="100%">
-	<tr><td width="100%">[<a href="index.html">Back to Index</a>] Authored: Wed Apr 10 22:41:37 2013</td></tr>
+	<tr><td width="100%">[<a href="index.html">Back to Index</a>] Authored: Thu Apr 11 07:46:44 2013</td></tr>
 	<tr><td width="100%" style="background-color: #3b5998; height:5px"></td></tr>
 </table>
 </body>
