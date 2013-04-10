@@ -1,0 +1,68 @@
+<html>
+<head>
+<style type="text/css">
+* {
+	font-family: Georgia, "Times New Roman", serif;
+	font-size: 13pt;
+	outline: none;
+	background-color: #fff;
+	color: #222;
+}
+a {
+	color: #3b5998;
+	text-decoration: none;
+}
+h1 {
+	font-size: 29pt;
+	margin-bottom: 0px;
+}
+h2 {
+	font-size: 20pt;
+	margin-bottom: 8px;
+}
+h3 {
+	font-size: 15pt;
+	margin-bottom: 8px;
+}
+</style>
+<title>The Perfect Operating System</title>
+</head>
+<body>
+<h2>The Perfect Operating System</h2>
+<hr/>
+No, this isn't a new operating system, named Perfect. It is a document which looks at the current state of operating systems now-a-days and sums them up with the best from all of the parties, though I'd rather <i>not</i> disclose what I think is the perfect one- just the dependencies, to avoid starting a fanboy war.
+
+<p>
+<h3>Open/Closed Source</h3>
+Though this topic is multi-faceted, and many could start a world-wide debate about the types of sources that a project could possibly implement, avoiding the professional vocabulary- we can usually sum it down into two general terms, the open and closed source. The developers of an open-sourced OS usually include the ever-friendly <a href="http://www.mozilla.org/en-US/">Mozilla</a>, developers of OSs like <a href="http://www.debian.org/">Debian</a> and <a href="https://www.archlinux.org/">Arch Linux</a>, which is <i>generally</i> user-based.</p>
+<p>
+These OSs are fairly popular amongst the developer's clubs and cliches, though the same cannot be said for the majority of the world. The reason behind that may be because of a lack of trust (security wise, given that a lot of open-sourced software is malware) or a lack of knowledge that that specific distribution/OS even <i>exists</i>, which narrows down the customer base. However, we're not here to talk about economics so the customer base part shall only be used to determine if more people would like something.
+<p>
+Developers of closed-source code, on the other hand, are generally narrowed down to mainly commercial foundations like <a href="http://www.microsoft.com/en-us/default.aspx">Microsoft</a>, <a href="http://apple.com">Apple</a>, etc. The development is mainly profit-based, and generally, or <i>remotely</i>, their development isn't always oriented to what the customer wants, but rather what the team <i>thinks</i> that they want. Personally I use <a href="http://www.apple.com/osx/">OS X</a>, I think it's great, but then there are a few restrictions- firstly, most of the things in iTunes must be purchased, and secondly, there are lots of software that isn't necessary- iPhoto, for example. And iWeb.
+<p>
+The family of closed-source OSs are extremely popular amongst the rest of the world, mainly because of their established reputation and because of the trust their users have placed on them- it should be secure and free of vulnerabilities. Though this is wrong and highly incorrect- especially the free of vulnerabilities part, as more and more vulnerabilities are being exposed and sometimes, <i>sold</i> for the Windows Operating System.
+<p>
+I think the best developer for a typically open-sourced, flexible, minimalist, and simple OS (based on Unix if possible) would be Mozilla- given that the development of their project is based on the demands and pull requests from their users. A fine example would be what they did with their <a href="http://rust-lang.org">Rust</a> language and the <a href="https://github.com/mozilla/rust/">git</a> repository.
+
+<p>
+<h3>Software</h3>
+The software included with any OS is extremely important- that is of no doubt, but I think highly developed (and popular) software are generally tilting towards the <i>highly cluttered with useless features</i> side. With bloatware, malware, adware, whatever-you-can-name-ware, it's highly important that the software developer chooses the title and the aim of their program wisely- what seems to be a polished, professional looking piece may just be a piece of adware; and what seems like a century-old binary may just be the ideal piece of software for you.
+<p>
+As with most Unix systems, a <a href="http://en.wikipedia.org/wiki/Package_management_system">package manager</a> may seem to be the most important tool for every developer and slightly-techie user alike. Some are more geared towards a specific set of Users, like <a href="http://mxcl.github.com/homebrew">Homebrew</a> or <a href="http://www.macports.org/">MacPorts</a>, while others provide a package management system for another piece of software- the best examples being <a href="https://npmjs.org/">npm</a> and <a href="https://pypi.python.org/pypi">PyPi</a> (odd name), with their heavy reliance on the website and the cloud.
+<p>
+Some operating systems include a build system inside the box, like ArchLinux's <a href="https://wiki.archlinux.org/index.php/Arch_Build_System">ABS</a>, while others come with custom made front-ends, normally for the <a href="http://en.wikipedia.org/wiki/Advanced_Packaging_Tool">APT</a> package system, like <a href="http://en.wikipedia.org/wiki/Aptitude_%28software%29">aptitude</a>, <a href="http://yum.baseurl.org/">yum</a>, and <a href="https://wiki.archlinux.org/index.php/Pacman">pacman</a>. Most of them are quite fundamental and can be considered the dependency of the main Operating System. I would, typically, choose Homebrew (OS X, you see), but since the operating system cannot be developed by a commercial organization, I'd rather go with pacman for it's intensive documentation. Yes, this means the OS would use the ABS.
+<p>
+Most software, I think, should be programmed in the Rust language- thanks to it's use of pointers and memory safety- the compiler is also <i>cool</i>. It's also claimed to be the right language to choose for writing huge, scalable applications- sounds like a shell, or some sort of task management daemon/process, and preserves large system <i>integrity</i>, <i>availability</i>, and <i>concurrency</i>. Firefox OS also has a unique approach to building applications- using JavaScript. So maybe we could use JavaScript alongside the main binary? Though that would be quite slow for large-scale applications, I could imagine- though with IBM's advanced like <a href="http://www.extremetech.com/computing/145800-ibm-develops-flexible-nanocircuitry-10000-times-thinner-than-paper">nanocircuitry</a> and <a href="http://www.nytimes.com/2011/06/10/technology/10chip.html?_r=0">graphite circuits</a>, computers would continue to get faster.
+<p>
+Other software included should be particularly minimal- <a href="http://www.gnu.org/software/bash/">bash</a> or <a href="www.tcsh.org">tcsh</a>, <a href="http://curl.haxx.se/">curl</a> for downloading files (or wget), <a href="http://www.openssh.org/">OpenSSH</a> for remote connections (and it's sftp tools), the Unix built-ins (this is redundant), ping, and <a href="http://www.nmap.org">nmap</a>. And a browser. Though I wouldn't want to even touch this topic of browsers and the best amongst them. The OS itself should also be use-able as a network or ethernet based command and control server/centre, much like the <a href="http://www.returninfinity.com/baremetalnode.html">BareMetal Node</a> concept that ReturnInfinity have come up with.
+
+<p>
+<h3>User Interface</h3>
+The user interface, I believe, however advanced and intuitive, must always include a terminal or command line. The user interface, while having the common belief that <i>simple is best</i>, isn't always so- the best UI does exactly what the user wants, and nothing more, nothing less. Fine designers of UI include Apple or arguably Microsoft (that's either a joke or a metaphor) with their Windows 7 Aero theme. Others, like <a href="http://www.kde.org/">KDE</a>, <a href="http://www.gnome.org/">GNOME</a>, and <a href="http://www.xfce.org">xfce</a> go for more Unix flavored systems. <i>Though X is a simple alternative for self-scripted environments, many criticize it- see <a href="http://en.wikipedia.org/wiki/X_Window_System#Limitations_and_criticism">this article</a> on Wikipedia for more information.</i>
+<p>
+I think the best user interface isn't a completely graphical one (in that case it would be GNOME), but a mix between the graphical and command-line one. See <a href="http://www.returninfinity.com/baremetal.html">BareMetal OS</a> for a good example of what I mean, as it's not cluttered and not full of stuff like widgets a plugins, and offers a broad view of what's happening onboard the computer. Multitasking should be offered via mouse gestures or pressing the keyboard- and you can spawn terminal instances, etc. These, while "primitive" at first glance, may offer tons of users the chance and the need to go deeper into computing and actually <i>read</i> documentation (<b>pure evil!</b>), benefiting both society (especially Tech Support) and themselves.
+
+<hr/>
+<center><a href="index.html">Back to homepage</a></center>
+</body>
+</html>
