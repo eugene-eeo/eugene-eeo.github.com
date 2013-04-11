@@ -30,6 +30,8 @@ class initialize():
 				elif call == "kill":
 					if server.kill_node(args, nodeID):
 						print "Killed node: %s" % (args)
+					else:
+						print "Node is not killed."
 				else:
 					print ">> Invalid Command."
 

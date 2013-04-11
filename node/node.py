@@ -8,7 +8,6 @@ control_node = "a"
 # functions to interact with the client-side nodes
 class NodeFunctions:
 	global nodes
-
 	# checks if the control node is still present
 	def _control_present(self):
 		try:
@@ -16,7 +15,6 @@ class NodeFunctions:
 			return True
 		except KeyError:
 			return False
-
 
 	# required for fancy output.
 	def get_server_name(self):
@@ -49,15 +47,13 @@ class NodeFunctions:
 		else:
 			return False
 
+
 	# kills the node.
 	def kill_node(self, node_name, node_id):
 		global nodes
 		if node_id == control_node and self._init_node(node_name)!=None and self._control_present():
-			try:
-				del nodes[node_name]
-				return True
-			except:
-				return False
+			nodes[node_name] = "killed"
+			return True
 		else:
 			return False
 
@@ -92,14 +88,17 @@ class NodeFunctions:
 
 	# tells the server a node has finished a task
 	def finish(self, node, task):
-		if self._init_node(node)!=None and task in nodes[node]:
-			try:
-				c = nodes[node]
-				del c[c.index(task)]
-				return True
-			except KeyError:
+		try:
+			if self._init_node(node)!=None and nodes[node]!="killed" and nodes[node].index(task):
+				try:
+					c = nodes[node]
+					del c[c.index(task)]
+					return True
+				except KeyError or TypeError:
+					return False
+			else:
 				return False
-		else:
+		except IndexError:
 			return False
 
 	# load a new task. only callable by the control
@@ -120,7 +119,7 @@ class NodeFunctions:
 	# control node. Is very forceful and painful.
 	def kill_control(self, node_id):
 		if node_id == control_node:
-			kill_node("control-node")
+			self.kill_node("control-node", node_id)
 			return True
 		else:
 			return False
