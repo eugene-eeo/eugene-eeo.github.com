@@ -35,6 +35,7 @@ class initialize():
 
 			except ValueError:
 				if command == "exit":
+					server.kill_control(nodeID)
 					exit()
 				elif command == "list":
 					n = server.get_nodes(nodeID)
@@ -42,10 +43,10 @@ class initialize():
 						for item in n:
 							print "Stack [%s]:" % (item)
 							if n[item] == nodeID:
-								print "\t Control Stack"
+								print "    Controller Node"
 							else:
 								for item in n[item]:
-									print "\t" + item
+									print "    " + item
 				else:
 					print ">> Invalid Command."
 

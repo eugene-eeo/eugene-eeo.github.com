@@ -1,0 +1,90 @@
+<html>
+<head>
+<link href='http://fonts.googleapis.com/css?family=Droid+Sans:400,700' rel='stylesheet' type='text/css'>
+<style type="text/css">
+body {
+	margin: 0;
+	font-family:'Droid Sans', sans-serif;
+	font-size: 13pt;
+	padding: 0;
+	width: 900px;
+	margin-right: auto;
+	margin-left: auto;
+}
+a {
+	text-decoration: none;
+	color: #1B4ABD;
+}
+table, td {
+	font: inherit;
+}
+h3 {
+	margin-top: 5px;
+	font-weight: bold;
+	margin-bottom: 2px;
+}
+h2 {
+	margin-bottom: 5px;
+	margin-top: 0px;
+	text-decoration: none;
+	font-weight: normal;
+}
+h1 {
+	margin-bottom: 3px;
+}
+#head {
+	background-color: #00000f;
+	padding: 0;
+	margin-top: 0px;
+	color: #ffffff;
+}
+hr {
+	background-color: black;
+	border: 0;
+	height: 3px;
+	margin: 0;
+}
+ul {
+	margin: 0;
+	padding-left: 15px;
+}
+</style>
+<title>XMLRPC Node</title>
+</head>
+<body>
+	<center><h1><img src="node-logo.png" width="80" height="80" align="left"/>XMLRPC Node</h1><h2>Cluster-Based Deployment</h2></center>
+	<hr/>
+	<table>
+		<tr>
+			<td width="650px" align="justify" valign="top">
+				The XMLRPC Node is a simple (made of three scripts) and robust implementation of both the <a href="http://www.returninfinity.com/baremetalnode.html">BareMetal Node</a> concept and meant as a protocol for anyone's dreams of implementing their own <a href="http://en.wikipedia.org/wiki/Beowulf_cluster">Beowulf Cluster</a>.
+				<p>
+				In short, Node is an XMLRPC protocol based "framework" for you to deploy commands, or tasks upon. Fortunately for you, Node does not have a massive API with complex commands- it's a relatively small and lightweight script designed to be as realistic and friendly as possible.
+				<p>
+				You can download the source from the following links:
+				<ul>
+					<a href="node.py">Node Server</a> | <a href="control.py">Controller + Interface</a> | <a href="slave.py">Worker Node</a>
+				</ul>
+				<p>
+				<b>Note:</b> before you deploy your own cluster and perform whatever you want with it (i.e. pranks are a good idea) it's recommended that you actually read <a href="../node-plans.html">RFC01</a> for a basic overview of the Node concept and what it actually is.
+			</td>
+			<td width="250px" valign="top" align="left">
+				<h3>RFCs</h3><hr/>
+				<ul>
+					<li><a href="../dynamic-stacks.html">02: Node as a Stack</a></li>
+					<li><a href="../node-plans.html">01: Node Concept</a></li>
+				</ul>
+			</td>
+		</tr>
+		<tr>
+			<td valign="top" align="left">
+				<h3>Latest News</h3>
+				<hr/>
+				I have managed to develop a tiny automatic Node scaling application, but it remains primitive. See <a href="scale.py">scale.py</a> for more information. I would also set up a git repository if there's a need for that.<p align="right" style="margin-top: 0;"> - Thu Apr 11 12:50:19 2013
+			</td>
+			<td valign="top">
+			</td>
+		</tr>
+	</table>
+
+</body>

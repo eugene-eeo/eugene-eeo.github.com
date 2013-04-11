@@ -17,6 +17,7 @@ class NodeFunctions:
 		except KeyError:
 			return False
 
+
 	# required for fancy output.
 	def get_server_name(self):
 		return socket.gethostbyname(socket.gethostname())
@@ -92,9 +93,12 @@ class NodeFunctions:
 	# tells the server a node has finished a task
 	def finish(self, node, task):
 		if self._init_node(node)!=None and task in nodes[node]:
-			c = nodes[node]
-			del c[c.index(task)]
-			return True
+			try:
+				c = nodes[node]
+				del c[c.index(task)]
+				return True
+			except KeyError:
+				return False
 		else:
 			return False
 
@@ -110,6 +114,15 @@ class NodeFunctions:
 			else:
 				return False
 		except TypeError or KeyError:
+			return False
+
+	# kills the control node to make way for another
+	# control node. Is very forceful and painful.
+	def kill_control(self, node_id):
+		if node_id == control_node:
+			kill_node("control-node")
+			return True
+		else:
 			return False
 
 server = SimpleXMLRPCServer.SimpleXMLRPCServer(("localhost", 8000))
