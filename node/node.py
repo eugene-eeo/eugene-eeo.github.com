@@ -89,7 +89,7 @@ class NodeFunctions:
 	# tells the server a node has finished a task
 	def finish(self, node, task):
 		try:
-			if self._init_node(node)!=None and nodes[node]!="killed" and nodes[node].index(task):
+			if self._init_node(node)!=None and nodes[node]!="killed" and task in nodes[node]:
 				try:
 					c = nodes[node]
 					del c[c.index(task)]
@@ -124,6 +124,6 @@ class NodeFunctions:
 		else:
 			return False
 
-server = SimpleXMLRPCServer.SimpleXMLRPCServer(("localhost", 8000))
+server = SimpleXMLRPCServer.SimpleXMLRPCServer((socket.gethostbyname(socket.gethostname()), 8000))
 server.register_instance(NodeFunctions())
 server.serve_forever()

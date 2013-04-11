@@ -9,7 +9,7 @@ while True:
 			break
 		if new:
 			for item in new:
-				subprocess.Popen(item, shell=True)
+				subprocess.Popen(item, shell=True,stdout=open("%s-logs.txt"%(node_name),"w"))
 				server.finish(node_name, item)
 		time.sleep(5)
 	except KeyboardInterrupt:
