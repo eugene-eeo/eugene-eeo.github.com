@@ -27,6 +27,12 @@ class initialize():
 				elif call == "create":
 					if server.create_node(args, nodeID):
 						print "Created node: %s" % (args)
+				elif call == "status":
+					x = server.get_status(args, nodeID)
+					if x:
+						print "%s status: %s" % (args, x)
+					else:
+						print "Cannot get status of node: %s" % (args)
 				elif call == "kill":
 					if server.kill_node(args, nodeID):
 						print "Killed node: %s" % (args)
@@ -68,6 +74,6 @@ try:
 		svr_con = True
 		initialize().shell()
 	else:
-		print ">> Invalid Node ID. Cannot register as Control Node."
+		print ">> Cannot register as Control Node."
 except socket.error as error:
 	print ">>" + str(error)

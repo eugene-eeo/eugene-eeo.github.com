@@ -1,19 +1,38 @@
 # import necessary modules- in this case, only the
 # XMLRPCServer and socket is required.
-import SimpleXMLRPCServer, socket, random, time
+import SimpleXMLRPCServer, socket, time
 nodes = {}
 control_node = "a"
-
+node_status = {}
 
 # functions to interact with the client-side nodes
 class NodeFunctions:
-	global nodes
+	global nodes, node_status
 	# checks if the control node is still present
 	def _control_present(self):
 		try:
 			nodes["control-node"]
 			return True
 		except KeyError:
+			return False
+
+	# lets the control node know if the selected
+	# node is offline or online.
+	def get_status(self, node, node_id):
+		if node_id==control_node and self._control_present():
+			try:
+				return node_status[node]
+			except KeyError:
+				return False
+		return False
+
+	# reports to the server that the current node is
+	# offline.
+	def node_is_offline(self, node_name):
+		if self._init_node(node_name):
+			node_status[node_name]="offline"
+			return True
+		else:
 			return False
 
 	# required for fancy output.
@@ -34,6 +53,7 @@ class NodeFunctions:
 	# easy boolean parsing.
 	def get_tasks(self, node):
 		if self._init_node(node)==node and self._control_present():
+			node_status[node]="online"
 			return nodes[node]
 		else:
 			return False
@@ -43,6 +63,7 @@ class NodeFunctions:
 	def create_node(self, node_name, node_id):
 		if node_id == control_node:
 			nodes[node_name] = []
+			node_status[node_name] = "unknown"
 			return True
 		else:
 			return False
@@ -53,6 +74,7 @@ class NodeFunctions:
 		global nodes
 		if node_id == control_node and self._init_node(node_name)!=None and self._control_present():
 			nodes[node_name] = "killed"
+			node_status[node_name] = "killed"
 			return True
 		else:
 			return False
@@ -126,4 +148,6 @@ class NodeFunctions:
 
 server = SimpleXMLRPCServer.SimpleXMLRPCServer((socket.gethostbyname(socket.gethostname()), 8000))
 server.register_instance(NodeFunctions())
+print "Node Server 0.0.1 Running at %s" % (socket.gethostbyname(socket.gethostname()))
+print "Written by eugene-eeo [eugene-eeo.github.com]"
 server.serve_forever()

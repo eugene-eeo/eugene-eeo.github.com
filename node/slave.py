@@ -1,7 +1,6 @@
-import xmlrpclib, subprocess, time, os
-server=xmlrpclib.Server('http://localhost:8000')
+import xmlrpclib, subprocess, time
+server=xmlrpclib.Server('http://192.168.128.7:8000')
 node_name="slave"
-
 while True:
 	try:
 		new=server.get_tasks(node_name)
@@ -9,8 +8,11 @@ while True:
 			break
 		if new:
 			for item in new:
-				subprocess.Popen(item, shell=True,stdout=open("%s-logs.txt"%(node_name),"w"))
-				server.finish(node_name, item)
+				print ("Running task: %s" % (item))
+				subprocess.Popen(item,shell=True,stdout=open("%s-logs.txt"%(node_name),"w"),stderr=open("%s-logs.txt"%(node_name),"w"))
+				server.finish(node_name,item)
 		time.sleep(5)
 	except KeyboardInterrupt:
-		exit()
+		break
+server.node_is_offline(node_name)
+exit()
