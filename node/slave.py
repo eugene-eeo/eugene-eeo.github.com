@@ -1,6 +1,7 @@
 import xmlrpclib, subprocess, time
 server=xmlrpclib.Server('http://192.168.128.7:8000')
 node_name="slave"
+server.log(node_name,"slave has started up.")
 while True:
 	try:
 		new=server.get_tasks(node_name)

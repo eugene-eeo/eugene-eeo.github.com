@@ -30,8 +30,14 @@ class NodeFunctions:
 	# offline.
 	def node_is_offline(self, node_name):
 		if self._init_node(node_name):
-			node_status[node_name]="offline"
-			return True
+			try:
+				if node_status[node_name] != "killed":
+					node_status[node_name] == "offline"
+				else:
+					node_status[node_name] == "killed"
+				return True
+			except KeyError:
+				return False
 		else:
 			return False
 
@@ -123,6 +129,13 @@ class NodeFunctions:
 		except IndexError:
 			return False
 
+	# logs content from a specific node. Even the
+	# control node can do so.
+	def log(self, node, string):
+		node = str(node); string = str(string)
+		print "[ \x1b[32m%s\x1b[0m ] %s - %s" % (time.strftime("%H:%M:%S"), node, string)
+		return True
+
 	# load a new task. only callable by the control
 	# centre.
 	def load_task(self, node, task, node_id):
@@ -146,8 +159,12 @@ class NodeFunctions:
 		else:
 			return False
 
-server = SimpleXMLRPCServer.SimpleXMLRPCServer((socket.gethostbyname(socket.gethostname()), 8000))
+server = SimpleXMLRPCServer.SimpleXMLRPCServer(("e4:ce:8f:17:82:d4", 8000))
 server.register_instance(NodeFunctions())
 print "Node Server 0.0.1 Running at %s" % (socket.gethostbyname(socket.gethostname()))
 print "Written by eugene-eeo [eugene-eeo.github.com]"
-server.serve_forever()
+try:
+	server.serve_forever()
+except KeyboardInterrupt:
+	print "Stopping Node Server..."
+	exit()
