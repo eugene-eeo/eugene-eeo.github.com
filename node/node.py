@@ -1,19 +1,32 @@
 # import necessary modules- in this case, only the
 # XMLRPCServer and socket is required.
 import SimpleXMLRPCServer, socket, time
-nodes = {}
+nodes = {}; node_status = {}; node_messages = {}
 control_node = "a"
-node_status = {}
 
 # functions to interact with the client-side nodes
 class NodeFunctions:
-	global nodes, node_status
+	global nodes, node_status, node_messages
 	# checks if the control node is still present
 	def _control_present(self):
 		try:
 			nodes["control-node"]
 			return True
 		except KeyError:
+			return False
+
+	# receives broadcasted messages. They cannot
+	# be removed.
+	def receive_messages(self):
+		return node_messages
+
+	# allows broadcasting of a message throughout
+	# all nodes/connected services.
+	def broadcast(self, node, message):
+		if self.is_node(node) and self.node_is_offline(node)==False:
+			node_messages[node].append(message)
+			return True
+		else:
 			return False
 
 	# lets the control node know if the selected
@@ -32,9 +45,9 @@ class NodeFunctions:
 		if self._init_node(node_name):
 			try:
 				if node_status[node_name] != "killed":
-					node_status[node_name] == "offline"
+					node_status[node_name] = "offline"
 				else:
-					node_status[node_name] == "killed"
+					pass
 				return True
 			except KeyError:
 				return False
@@ -69,6 +82,7 @@ class NodeFunctions:
 	def create_node(self, node_name, node_id):
 		if node_id == control_node:
 			nodes[node_name] = []
+			node_messages[node_name] = []
 			node_status[node_name] = "unknown"
 			return True
 		else:
@@ -79,7 +93,7 @@ class NodeFunctions:
 	def kill_node(self, node_name, node_id):
 		global nodes
 		if node_id == control_node and self._init_node(node_name)!=None and self._control_present():
-			nodes[node_name] = "killed"
+			nodes[node_name] = ["killed"]
 			node_status[node_name] = "killed"
 			return True
 		else:
@@ -94,6 +108,7 @@ class NodeFunctions:
 					return False
 			except KeyError or IndexError:
 				nodes["control-node"] = node_id
+				node_messages["control-node"] = []
 				return True
 		else:
 			return False
@@ -114,7 +129,8 @@ class NodeFunctions:
 			return False
 
 
-	# tells the server a node has finished a task
+	# tells the server a node has finished a task, or
+	# is currently working on it.
 	def finish(self, node, task):
 		try:
 			if self._init_node(node)!=None and nodes[node]!="killed" and task in nodes[node]:
@@ -134,6 +150,7 @@ class NodeFunctions:
 	def log(self, node, string):
 		node = str(node); string = str(string)
 		print "[ \x1b[32m%s\x1b[0m ] %s - %s" % (time.strftime("%H:%M:%S"), node, string)
+		open("task-logs.txt","a").write("[ %s ] %s - %s\n"%(time.strftime("%H:%M:%S"), node, string))
 		return True
 
 	# load a new task. only callable by the control
@@ -155,13 +172,14 @@ class NodeFunctions:
 	def kill_control(self, node_id):
 		if node_id == control_node:
 			self.kill_node("control-node", node_id)
+			del nodes["control-node"]
 			return True
 		else:
 			return False
 
-server = SimpleXMLRPCServer.SimpleXMLRPCServer(("e4:ce:8f:17:82:d4", 8000))
+server = SimpleXMLRPCServer.SimpleXMLRPCServer((socket.gethostbyname(socket.gethostname()), 8000))
 server.register_instance(NodeFunctions())
-print "Node Server 0.0.1 Running at %s" % (socket.gethostbyname(socket.gethostname()))
+print "Node Server 0.0.1 Running at %s:8000" % (socket.gethostbyname(socket.gethostname()))
 print "Written by eugene-eeo [eugene-eeo.github.com]"
 try:
 	server.serve_forever()

@@ -53,12 +53,8 @@ class initialize():
 							if n[item] == nodeID:
 								print "    Controller Node"
 							else:
-								if item == "killed":
-									print "    killed."
-
-								else:
-									for item in n[item]:
-										print "    " + item
+								for item in n[item]:
+									print "    " + item
 				else:
 					print ">> Invalid Command."
 
