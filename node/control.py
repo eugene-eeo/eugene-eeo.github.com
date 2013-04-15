@@ -23,7 +23,7 @@ class initialize():
 						if server.load_task(node, task, nodeID):
 							print "Loaded Task %s at node: %s" % (task, node)
 					except ValueError:
-						print ">> Invalid Parameters."
+						print "Invalid Parameters."
 				elif call == "create":
 					if server.create_node(args, nodeID):
 						print "Created node: %s" % (args)
@@ -39,7 +39,7 @@ class initialize():
 					else:
 						print "Node is not killed."
 				else:
-					print ">> Invalid Command."
+					print "Invalid Command."
 
 			except ValueError:
 				if command == "exit":
@@ -56,7 +56,7 @@ class initialize():
 								for item in n[item]:
 									print "    " + item
 				else:
-					print ">> Invalid Command."
+					print "Invalid Command."
 
 print ("Control Node Interface (CNI) v0.0.1 (10 4 2013)")
 print ("Written by Eugene Eeo [http://eugene-eeo.github.com]")
@@ -66,10 +66,10 @@ try:
 	server = xmlrpclib.Server('%s:%s' % (svr_url, port))
 	nodeID = raw_input("Node ID: ")
 	if server.register_control(nodeID):
-		print ">> Registred as Control Node. at %s" % (server.get_server_name())
+		print "Registred as Control Node. at %s" % (svr_url)
 		svr_con = True
 		initialize().shell()
 	else:
-		print ">> Cannot register as Control Node."
+		print "Cannot register as Control Node."
 except socket.error as error:
-	print ">>" + str(error)
+	print str(error)
