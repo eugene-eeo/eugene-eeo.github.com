@@ -60,7 +60,7 @@ USING NODE AS A DEVELOPMENT PLATFORM
 April 11, 2013
 
 
-First Edition (1st Revision)
+First Edition (2nd Revision)
 
 
 
@@ -91,7 +91,7 @@ A stack is defined as a "complete deployment environment including the base oper
     Worker3: []             Worker3: [][]
     Worker4: []             Worker4: [][]
   	</pre>
-  	It provides an erosion free, dynamic and flexible platform to work with. For automatic scalling, there are little to consider- especially since there are generally only two types of Nodes- the high availability ones, which are the apps or lightweight commands, and the heavy duty, high reload-time ones, which typically provide the grunt behind everything. To manually scale something, you can just distribute the tasks equally and rationally; but for an automatically scaling application, you can code something like the following:
+  	Though balancing the tasks distributed throughout each Node is important, you should also keep in mind that everytime you load a task, it is spawned, by default, as a seperate process via <code>subprocess.Popen</code>, which will be killed when the Node is killed, because it's a parent process of the child processes. The Node system provides an erosion free, dynamic and flexible platform to work with. For automatic scalling, there are little to consider- especially since there are generally only two types of Nodes- the high availability ones, which are the apps or lightweight commands, and the heavy duty, high reload-time ones, which typically provide the grunt behind everything. To manually scale something, you can just distribute the tasks equally and rationally; but for an automatically scaling application, you can code something like the following:
   	<pre>
 Poll the server for any tasks that      Check for any empty Nodes, and
 are loaded to the independent Nodes.    add them to a list.               
@@ -181,7 +181,12 @@ x = subprocess.Popen(item, shell=True).pid</pre>
 		<pre>
 os.popen("kill %s" % (str(x)))</pre>
 		Which will kill the process.
-
+<p>
+	<b>4.10 CONSIDERATIONS</b>
+	<p>
+		Depending on your personal needs, you may want to import the <code><a href="http://docs.python.org/2/library/multiprocessing.html">multiprocessing</a></code> module, pack the server-side functions into a class and then create a function to call the class- then run it as a seperate process. Then, from there, you can also control the entire server without the need to send requests from a control-node. This might be implemented in the future.
+	</p>
+</p>
 <p>
 <table width="100%">
 	<tr><td width="100%">[<a href="index.html">Back to Index</a>] Authored: Thu Apr 11 07:46:44 2013</td></tr>
