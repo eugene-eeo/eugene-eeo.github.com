@@ -38,6 +38,11 @@ class initialize():
 						print "Killed node: %s" % (args)
 					else:
 						print "Node is not killed."
+				elif call == "cast":
+					if server.broadcast("control-node", args):
+						print "Broadcasted message: %s" % (args)
+					else:
+						print "Cannot broadcast message."
 				else:
 					print "Invalid Command."
 
@@ -45,6 +50,13 @@ class initialize():
 				if command == "exit":
 					server.kill_control(nodeID)
 					exit()
+				elif command == "help":
+					print "CNI v0.0.1 Commands"
+					print "list                 lists the stack for each node"
+					print "load:[node]=[task]   loads a task into a worker node"
+					print "create:[node]        creates a new node"
+					print "kill:[node]          kills a node and it's spawned processes"
+					print "status:[node]        gets the status of a node"
 				elif command == "list":
 					n = server.get_nodes(nodeID)
 					if n:
@@ -58,7 +70,7 @@ class initialize():
 				else:
 					print "Invalid Command."
 
-print ("Control Node Interface (CNI) v0.0.1 (10 4 2013)")
+print ("Control Node Interface (CNI) v0.0.1 (17 4 2013)")
 print ("Written by Eugene Eeo [http://eugene-eeo.github.com]")
 svr_url = str(raw_input("Server URL: "))
 port = str(raw_input("Server Port: "))

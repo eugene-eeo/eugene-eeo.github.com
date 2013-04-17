@@ -40,18 +40,15 @@ class NodeFunctions:
 		return False
 
 	# reports to the server that the current node is
-	# offline.
+	# offline or checks if the node is offline.
 	def node_is_offline(self, node_name):
-		if self._init_node(node_name):
-			try:
-				if node_status[node_name] != "killed":
-					node_status[node_name] = "offline"
-				else:
-					pass
-				return True
-			except KeyError:
+		try:
+			if node_status[node_name] != "killed":
+				node_status[node_name] = "offline"
+			else:
 				return False
-		else:
+			return True
+		except KeyError:
 			return False
 
 	# required for fancy output.
@@ -150,7 +147,7 @@ class NodeFunctions:
 	def log(self, node, string):
 		node = str(node); string = str(string)
 		print "[ \x1b[32m%s\x1b[0m ] %s - %s" % (time.strftime("%H:%M:%S"), node, string)
-		open("task-logs.txt","a").write("[ %s ] %s - %s\n"%(time.strftime("%H:%M:%S"), node, string))
+		open("task-logs.txt","a").write("[ %s ] %s - %s\n" % (time.strftime("%H:%M:%S"), node, string))
 		return True
 
 	# load a new task. only callable by the control
