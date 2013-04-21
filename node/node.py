@@ -15,6 +15,23 @@ class NodeFunctions:
 		except KeyError:
 			return False
 
+	# tells the control node if a node has failed
+	def node_failed(self, node):
+		if self.is_node(node):
+			if node_status[node] == "failed":
+				return True
+		return False
+
+	# tells the server that something has gone
+	# (horribly) wrong. It is up to the control
+	# node to do something about it.
+	def node_failure(self, node):
+		if self.is_node(node) and self.node_is_offline(node)==False:
+			node_status[node] = "failed"
+			return True
+		else:
+			return False
+
 	# receives broadcasted messages. They cannot
 	# be removed.
 	def receive_messages(self):
@@ -147,7 +164,7 @@ class NodeFunctions:
 	def log(self, node, string):
 		node = str(node); string = str(string)
 		print "[ \x1b[32m%s\x1b[0m ] %s - %s" % (time.strftime("%H:%M:%S"), node, string)
-		open("task-logs.txt","a").write("[ %s ] %s - %s\n" % (time.strftime("%H:%M:%S"), node, string))
+		open("task-logs.txt","a").write("\n[ %s ] %s - %s" % (time.strftime("%H:%M:%S"), node, string))
 		return True
 
 	# load a new task. only callable by the control
