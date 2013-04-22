@@ -1,0 +1,31 @@
+#!/usr/bin/python
+import xmlrpclib
+server = None
+nodes = {}
+
+def InterfaceError(message):
+	pass
+
+# this class would allow the script to send
+# messages across other nodes/ports
+class Interface(object):
+	global server
+	# sends a specific message through other
+	# remote nodes
+	def send(self, status, message, address, raw=False):
+		connect = False
+		message = str(message)
+		address = str(address)
+		status = str(status)
+		if raw == True:
+			connect = True
+			pass
+		if raw == False:
+			try:
+				raw = int(raw)
+			except TypeError:
+				raise InterfaceError
+
+		if connect:
+			server = xmlrpclib.Server(address)
+			server.send(status, message)

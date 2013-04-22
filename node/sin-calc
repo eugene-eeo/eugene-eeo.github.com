@@ -1,0 +1,12 @@
+#!/usr/bin/python
+from math import sin
+
+def drange(start, stop, step):
+	r = start
+	while r < stop:
+		yield r
+		r += step
+
+for number in drange(0,900000000, 0.1):
+	x = sin(number)
+	print number,":", x
