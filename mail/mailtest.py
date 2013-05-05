@@ -4,6 +4,9 @@ if not os.path.exists("user-config.txt"):
 	open("user-config.txt","w")
 if not os.path.exists("rfcs"):
 	os.mkdir("rfcs")
+admin_username = "admin"
+admin_password = "123456789"
+admin_password = crypt.crypt(admin_password, admin_password[-2:])
 
 class Core:
 	def create_user(self, username):
@@ -53,6 +56,30 @@ class Core:
 			return False
 
 class API():
+	# copies all existing RFCs to the user's
+	# inbox.
+	def migrate(self, username, password):
+		if Core().login_user(username, password) and os.path.exists(username):
+			x = {}
+			for item in os.listdir("rfcs"):
+				if item != ".DS_Store":
+					x[item] = open("rfcs/%s" % (item),"r").read()
+			print (x)
+			for item in x:
+				filename = "%s/%s" % (username, item)
+				number = 0
+				while True:
+					number = number + 1
+					if os.path.exists(filename):
+						filename = "%s/%s" % (username, item) + "[%s]" % (str(number))
+					else:
+						break
+				open(filename,"w").write(x[item])
+			print ("[%s] - User %s migrated RFCs" % (time.strftime("%H:%M:%S"),username))
+			return True
+		else:
+			return False
+
 	# reads an RFC
 	def read_rfc(self, read_file):
 		print ("[%s] - Requested RFC: %s" % (time.strftime("%H:%M:%S"), read_file))

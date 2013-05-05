@@ -1,7 +1,6 @@
 #!/usr/local/bin/python3
 import xmlrpc.client, sys, os, getpass, crypt
 username = ""; password = ""; server_address = "";
-print ("AetherMail Client 0.1.2 [OSX 10.6.8+]")
 def connect(server_address):
 	global x
 	x = xmlrpc.client.ServerProxy(server_address, encoding="utf8")
@@ -38,6 +37,9 @@ try:
 		else:
 			print ("RFC is not submitted.")
 
+	elif sys.argv[1] == "migrate":
+		login()
+
 	elif sys.argv[1] == "get:rfc":
 		login()
 		for item in x.get_rfc():
@@ -52,10 +54,14 @@ try:
 				content += line
 			print ("\nSubject:\x1b[1m " + sujet + "\x1b[0m")
 			print ("Author:\x1b[1m " + author + "\x1b[0m")
+			content = content.replace("<r>","\x1b[31m")
+			content = content.replace("</r>","\x1b[0m")
 			content = content.replace("<u>","\x1b[4m")
 			content = content.replace("</u>","\x1b[0m")
 			content = content.replace("<g>","\x1b[32m")
 			content = content.replace("</g>","\x1b[0m")
+			content = content.replace("<c>","\x1b[36m")
+			content = content.replace("</c>","\x1b[0m")
 			content = content.replace("<b>","\x1b[1m")
 			content = content.replace("</b>","\x1b[0m")
 			print (content)
@@ -64,8 +70,8 @@ try:
 		os.system("vi send_text.txt")
 		content = open("send_text.txt","r").read()
 		login()
-		title = input("   Subject: ")
-		send_to = input("   Send to: ")
+		title = input("   \x1b[1mSubject:\x1b[0m ")
+		send_to = input("   \x1b[1mSend to:\x1b[0m ")
 		if x.push(username, password, send_to, title, content):
 			print ("Message sent.")
 			os.remove("send_text.txt")
@@ -100,11 +106,12 @@ try:
 	elif sys.argv[1] == "get":
 		login()
 		mails = x.recv(username, password)
+		de = ""
 		try:
 			iter(mails)
+			open("read_mail.txt","w")
 			for item in mails:
 				try:
-					print("\nMailfile:\x1b[36m",item,"\x1b[0m")
 					c = x.read(username, password, item)
 					sujet = c.split("Subject: ")[1]
 					sujet = sujet.split("\nAuthor: ")[0]
@@ -114,37 +121,28 @@ try:
 					content = ""
 					for line in xsls:
 						content += line
-					print ("Subject:\x1b[1m " + sujet + "\x1b[0m")
-					print ("Author:\x1b[1m " + author + "\x1b[0m")
-					try:
-						content = content.replace("<u>","\x1b[4m")
-					except ValueError:
-						pass
-					try:
-						content = content.replace("</u>","\x1b[0m")
-					except ValueError:
-						pass
-					try:
-						content = content.replace("<g>","\x1b[32m")
-					except ValueError:
-						pass
-					try:
-						content = content.replace("</g>","\x1b[0m")
-					except ValueError:
-						pass
-					try:
-						content = content.replace("<b>","\x1b[1m")
-					except ValueError:
-						pass
-					try:
-						content = content.replace("</b>","\x1b[0m")
-					except ValueError:
-						pass
-					print (content)
+					content = content.replace("<c>","\x1b[36m")
+					content = content.replace("</c>","\x1b[0m")
+					content = content.replace("<u>","\x1b[4m")
+					content = content.replace("</u>","\x1b[0m")
+					content = content.replace("<g>","\x1b[32m")
+					content = content.replace("</g>","\x1b[0m")
+					content = content.replace("<b>","\x1b[1m")
+					content = content.replace("</b>","\x1b[0m")
+					content = content.replace("<r>","\x1b[31m")
+					content = content.replace("</r>","\x1b[0m")
+					de += "\nMailfile:\x1b[36m " + item + "\x1b[0m"
+					de += "\nSubject:\x1b[1m " + sujet + "\x1b[0m"
+					de += "\nAuthor:\x1b[1m " + author + "\x1b[0m"
+					de += "\n" + content
+					open("read_mail.txt","a").write(de)
 				except TypeError as error:
 					print (str(error))
 			if len(mails) == 0:
 				print ("No mail for %s" % (username))
+			else:
+				print(open("read_mail.txt","r").read())
+				os.remove("read_mail.txt")
 		except TypeError:
 			print ("You are not authenticated. Perhaps you should")
 			print ("retype your credentials.")
@@ -169,6 +167,10 @@ try:
 
 	elif sys.argv[1] == "--help" or sys.argv[1] == "help":
 		raise IndexError
+
+	elif sys.argv[1] == "--version":
+		print ("0.1.2")
+
 	else:
 		raise IndexError
 except KeyboardInterrupt:
@@ -177,10 +179,10 @@ except KeyboardInterrupt:
 except IndexError:
 	print ("Usage: %s [command]" % (sys.argv[0]))
 	print ("Where [command] is one of:")
-	print ("               send  -  Sends a mail message.")
-	print ("  delete [mailfile]  -  Deletes mail onboard the server.")
-	print ("                get  -  Fetches and reads mail.")
-	print ("           register  -  Registers an account on a server.")
-	print ("         deactivate  -  Removes an account.")
-	print ("            get:rfc  -  Gets RFCs.")
-	print ("           send:rfc  -  Submits an RFC.")
+	print ("  send                 Sends a mail message.")
+	print ("  delete [mailfile]    Deletes mail onboard the server.")
+	print ("  get                  Fetches and reads mail.")
+	print ("  register             Registers an account on a server.")
+	print ("  deactivate           Removes an account.")
+	print ("  get:rfc              Gets RFCs.")
+	print ("  send:rfc             Submits an RFC.")
