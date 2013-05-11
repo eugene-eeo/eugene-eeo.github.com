@@ -1,0 +1,79 @@
+<html>
+<head>
+<style type="text/css">
+body {
+	width: 570px;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 0.5em;
+	font-size: 17.5px;
+	font-family: Georgia, serif;
+	border-top: 6px solid #CC3D33;
+	margin-top: 0;
+	text-align: justify;
+	margin-bottom: 1.5em;
+}
+pre {
+	background-color: F4F4F2;
+}
+p {
+	margin-top: 3px;
+}
+#keyword {
+	color: #c96;
+}
+#string {
+	color: #690;
+}
+#bracket {
+	color: #333;
+}
+#comment {
+	color: #999;
+}
+h1, h2 {
+	margin-top: 5px;
+	margin-bottom: 0px;
+	font-weight: 200;
+}
+hr {
+	margin-top: 0px;
+	border-bottom: 0.5px solid black;
+}
+a {
+	color: #CA3632;
+	text-decoration: none;
+}
+code {
+	font-family: Monaco, monospace;
+	font-size: 10pt;
+}
+#tabbed {
+	padding-left: 1.5em;
+}
+</style>
+<title>Forge</title>
+</head>
+<body>
+	<h1>considerations for plugins</h1>
+	<hr/>
+	<p>
+		As Forge will continue to grow, there would, at a certain point in time, come a need for plugins, or job-specific executables which can be preconfigured prior to running, see <a href="http://gruntjs.com/plugins">gruntjs.com/plugins</a> for such examples.
+	<p>
+		There are several ways in which these can be implemented- firstly, they can be stored in some <a href="http://git-scm.com">git</a> repo and then downloaded when needed, ran, and then deleted. This would bring about multiple issues like unstable builds, bandwidth issues, etc.
+	<p>
+		Secondly, plugins can be stored in either the user's home folder, which would now depend on the <code>os.getenv(<span id="string">"HOME"</span>)</code> output, or a "lower-level" folder like <code>/usr/local/</code>.
+	<div id="tabbed">
+	<h2>invocation methods</h2>
+	<hr/>
+	<p>
+		There are also multiple ways in which the plugins can be invoked- the command-line method or the config-file method. Both have their advantages and disadvantages.
+	<p>
+		The command-line method involves the invocation of the plugin's main executable(s) using command-line options which would, presumably, be parsed by the executable itself.
+	<p>
+		An alternative method might be to create a static configuration file inside a folder like <code>/usr/local/forge/config/</code>, which would presumably be parsed by the plugin's executable, and then invoke the executable.
+	</div>
+	<p>
+		With my current coding skills and forge's relatively new age, it seems best that we would go for a static configuration-file based invocation, and a directory for storing plugins- <code>/usr/local/</code> would seem the rational way to go.
+</body>
+</html>
