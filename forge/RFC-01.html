@@ -1,0 +1,125 @@
+<html>
+<head>
+<style type="text/css">
+body {
+	width: 570px;
+	margin-left: auto;
+	margin-right: auto;
+	margin-top: 0.5em;
+	font-size: 17.5px;
+	font-family: Georgia, serif;
+	border-top: 6px solid #CC3D33;
+	margin-top: 0;
+	text-align: justify;
+	margin-bottom: 1.5em;
+}
+pre {
+	background-color: F4F4F2;
+}
+p {
+	margin-top: 3px;
+}
+#keyword {
+	color: #c96;
+}
+#string {
+	color: #690;
+}
+#bracket {
+	color: #333;
+}
+#comment {
+	color: #999;
+}
+h1, h2 {
+	margin-top: 5px;
+	margin-bottom: 0px;
+	font-weight: 200;
+}
+hr {
+	margin-top: 0px;
+	border-bottom: 0.5px solid black;
+}
+a {
+	color: #CA3632;
+	text-decoration: none;
+}
+code {
+	font-family: Monaco, monospace;
+	font-size: 10pt;
+}
+#tabbed {
+	padding-left: 1.5em;
+}
+</style>
+<title>Forge</title>
+</head>
+<body>
+	<h1>forge</h1>
+	<hr/>
+	<p>
+		Forge is a installer for <a href="http://rust-lang.org">Rust</a>-based packages or programs, written in <a href="http://www.python.org/getit/releases/3.3.1/">Python 3.3.1</a>. It is somewhat similar to <a href="http://www.gnu.org/software/make/">gnu-make</a>, which is a tool which controls the generation of executables.
+	<p>
+		The aim behind the creation of Forge is to make compiling Rust executables really simple and hassle free, while also destroying most chances of compile-time errors.
+	<p>
+		You can run the forge binary within a project's directory. Technical details for the current version (<code>0.0.1</code>) are covered <a href="#tech-details">below</a>.
+	<div id="tabbed">
+		<a name="tech-details"></a>
+		<h2>technical details</h2>
+		<hr/>
+		<p>
+			Upon execution within the directory of a certain project, an <code>anvil.rsx</code> file would be checked for existence. If it does, Forge will execute the file and perform tasks called by functions.
+		<p>
+			Projects must have a standardized directory layout, comprising of a src, docs, and build (empty, will be used as storage for compiled binaries) folder.
+		<p>
+			The <code>anvil.rsx</code> file can use or call any of the methods specified in the <a href="#methods">Methods</a> section. The file must be written in legal Python 3 syntax or it will raise errors.
+	</div>
+	<div id="tabbed">
+		<a name="methods"></a>
+		<h2>methods</h2>
+		<hr/>
+		<p>
+			Programs that would be ran upon building or installation of the project can be easily configured using the <code><span id="keyword">spawn</span>(</span><i>task</i>, <i>[args]</i>, <i>timeout</i>)</span></code> method.
+		<p>
+			Pushing content from one folder to the build/ folder, after finishing tasks can be done using the <code><span id="keyword">push</span>(</span><i>src</i>)</span></code> method, where <code><i>src</i></code> is a directory.
+		<p>
+			Testing for existence of a file can be called using the <code><span id="keyword">exists</span>(</span><i>filename</i>,<i> is_dir=<span id="keyword">False</span></i>)</span></code> method, which returns either <code><span id="keyword">True</span></code> or <code><span id="keyword">False</span></code>.
+		<p>
+			Checking for dependencies can be done via the <code><span id="keyword">require</span>(</span><i>[[<span id="string">""</code>, <span id="string">""</span></code>]]</i>)</span></code> method, which is usually something like <code>[<span id="string">"/usr/bin/env"</span>, <span id="string">"python"</span>]</span></code> because it can find a binary without requiring an absolute path.
+		<p>
+			Linting the source code within the build/ directory can be done using the <code><span id="keyword">lint</span>()</code> method, which in turn "tests" every file with ".rs" via the <code>rustc --parse-only [filename]</code> command.
+		<p>
+			Building the executables within the build/ directory could be done using the <code><span id="keyword">build</span>()</code> method, which recursively compiles every file within the build/ directory ending with <code>.rs</code>.
+		<p>
+			You can show a "Building [package] v[version]..." message at the start of your compilation using the <code><span id="keyword">meta</span>(<i>info</i>)</code> method, where <code><i>info</i></code> is a dictionary containing strings like so: <code>{<span id="string">"name"</span>:<span id="string">""</span>, <span id="string">"version"</span>:<span id="string">""</span>}</code>.
+		<p>
+			After building, you can then print a message in bold green terminal escapes using the <code><span id="keyword">done</span>(<i>message</i>)</code> method. If you don't specify the <code><i>message</i></code> variable, a random message would be shown.
+	</div>
+	<div id="tabbed">
+		<a name="example"></a>
+		<h2>examples</h2>
+		<hr/>
+		<pre><code>meta({<span id="string">"version"</span>:<span id="string">"1.0"</span>,<span id="string">"name"</span>:<span id="string">"Nautilus"</span>})
+
+require([
+	[<span id="string">"version"</span>,<span id="string">"0.0.1"</span>],
+	[<span id="string">"/usr/bin/env"</span>,<span id="string">"python3.3"</span>],
+	[<span id="string">"/usr/bin/env"</span>,<span id="string">"brew"</span>],
+	[<span id="string">"/usr/bin/env"</span>,<span id="string">"rake"</span>]
+	])
+
+push([<span id="string">"lib"</span>])
+<span id="keyword">if</span> exists(<span id="string">"build/lib/"</span>,is_dir=<span id="keyword">True</span>) <span id="keyword">and</span> lint():
+	build()
+
+<span id="keyword">if</span> exists(<span id="string">"build/lib/ls/libtest"</span>) and exists(<span id="string">"build/lib/xs"</span>):
+	link([<span id="string">"lib/ls/libtest"</span>,<span id="string">"lib/xs"</span>])
+
+<span id="keyword">if</span> spawn(<span id="string">"lib/ls/libtest"</span>,[],timeout=<span id="keyword">3</span>):
+	spawn(<span id="string">"build/lib/xs"</span>,[],timeout=<span id="keyword">3</span>)
+	done(<span id="string">"Finished building Nautilus v1.0"</span>)</code></pre>
+	</div>
+<p>
+	You can download the main executable at <a href="https://github.com/eugene-eeo/forge">https://github.com/eugene-eeo/forge</a>. Feel free to hack away or mail me at <a href="mailto:packwolf58@gmail.com">packwolf58@gmail.com</a> if you have any requests.
+</body>
+</html>
