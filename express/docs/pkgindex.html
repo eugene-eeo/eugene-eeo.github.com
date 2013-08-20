@@ -1,0 +1,158 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>express &mdash; Express 0.1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/flasky.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Express 0.1.0b1 documentation" href="index.html" />
+    <link rel="next" title="express.express" href="express.html" />
+    <link rel="prev" title="Changelog" href="changelog.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body>
+  
+  
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="express.html" title="express.express"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="changelog.html" title="Changelog"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Express 0.1.0b1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="express">
+<h1>express<a class="headerlink" href="#express" title="Permalink to this headline">¶</a></h1>
+<p>Lightweight library for designing web APIs, based on
+Flask and Werkzeug for acting as high-level routers.</p>
+<p>Companion to the Synrails library- first you have your
+TCP servers, now you have an entire web API.</p>
+<p>A simple &#8220;Hello World!&#8221; API:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">express</span>
+<span class="n">app</span> <span class="o">=</span> <span class="n">express</span><span class="p">()</span>
+
+<span class="nd">@app.serve</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">serve</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">method</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="p">[</span><span class="s">&quot;method&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">app</span><span class="o">.</span><span class="n">Model</span><span class="o">.</span><span class="n">_run</span><span class="p">(</span><span class="n">string</span><span class="o">=</span><span class="n">method</span><span class="p">)</span>
+
+<span class="nd">@app.event</span><span class="p">(</span><span class="s">&quot;hello&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">hello_world</span><span class="p">():</span>
+    <span class="k">return</span> <span class="s">&quot;Hello World!&quot;</span>
+
+<span class="n">app</span><span class="o">.</span><span class="n">listen</span><span class="p">(</span><span class="mi">5000</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Run that, and start another Python REPL, preferrably
+with <tt class="docutils literal"><span class="pre">requests</span></tt> installed:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">call</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;method&quot;</span><span class="p">:</span><span class="s">&quot;hello&quot;</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s">&quot;http://localhost:5000/&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">call</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
+<span class="go">&#39;{&quot;value&quot;:&quot;Hello World!&quot;,&quot;status&quot;:&quot;True&quot;}&#39;</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>The express API is not a regular Python
+namespace module but is an <tt class="docutils literal"><span class="pre">Express</span></tt> instance, i.e.:</p>
+<div class="last highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">express</span>
+<span class="n">app</span> <span class="o">=</span> <span class="n">express</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p>However, you can still do imports via the express
+module:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">express.contrib</span>
+<span class="kn">import</span> <span class="nn">express.helpers</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">copyright:</th><td class="field-body">2013 by Eugene Eeo.</td>
+</tr>
+<tr class="field-even field"><th class="field-name">license:</th><td class="field-body">BSD-3, see license.txt for details.</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper"><h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="changelog.html" title="previous chapter">Changelog</a></li>
+      <li>Next: <a href="express.html" title="next chapter">express.express</a></li>
+  </ul></li>
+</ul>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/pkgindex.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  <div class="footer">
+    &copy; Copyright 2013, Eugene Eeo.
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  
+  </body>
+</html>

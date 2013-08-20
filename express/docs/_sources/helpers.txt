@@ -1,0 +1,29 @@
+.. automodule:: express.helpers
+
+.. autoclass:: express.helpers.Model
+    :members: _run, schema, resp, serve, setup, functions
+    :noindex:
+
+.. autoclass:: express.helpers.Configuration
+    :members:
+    :noindex:
+
+.. autoclass:: express.helpers.Protocol
+    :members:
+    :noindex:
+
+.. autoclass:: express.helpers.DB
+    :members:
+    :noindex:
+
+.. autoclass:: express.helpers.RedisStorage
+    :members:
+    :noindex:
+
+.. autoclass:: express.helpers.DBMBinding
+    :members:
+    :noindex:
+
+.. autoclass:: express.helpers.SMTPBinding
+    :members:
+    :noindex:

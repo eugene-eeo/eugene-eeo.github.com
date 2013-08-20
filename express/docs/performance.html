@@ -1,0 +1,155 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Performance &mdash; Express 0.1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/flasky.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Express 0.1.0b1 documentation" href="index.html" />
+    <link rel="prev" title="Design Decisions" href="design.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body>
+  
+  
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="design.html" title="Design Decisions"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Express 0.1.0b1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="performance">
+<h1>Performance<a class="headerlink" href="#performance" title="Permalink to this headline">¶</a></h1>
+<p>Tiny little things that you can do to speed up performance
+in critical environments.</p>
+<div class="section" id="install-the-ujson-library">
+<h2>Install the uJSON library.<a class="headerlink" href="#install-the-ujson-library" title="Permalink to this headline">¶</a></h2>
+<p>uJSON (<a class="reference external" href="https://pypi.python.org/pypi/ujson">https://pypi.python.org/pypi/ujson</a>) is a JSON library
+which acts as a drop-in replacement for the standard JSON
+library for Python. It features lots of C bindings which speed
+up the deserializing times significantly.</p>
+<p>You may also want to consider these libraries which also
+provide similar functionality:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">simplejson</span></tt> - <a class="reference external" href="https://pypi.python.org/pypi/simplejson/">https://pypi.python.org/pypi/simplejson/</a></li>
+<li><tt class="docutils literal"><span class="pre">yajl</span></tt> - <a class="reference external" href="https://pypi.python.org/pypi/yajl">https://pypi.python.org/pypi/yajl</a></li>
+<li><tt class="docutils literal"><span class="pre">msgpack</span></tt> - <a class="reference external" href="https://pypi.python.org/pypi/msgpack-python/">https://pypi.python.org/pypi/msgpack-python/</a></li>
+</ul>
+</div>
+<div class="section" id="use-a-custom-serialization-format">
+<h2>Use a custom serialization format<a class="headerlink" href="#use-a-custom-serialization-format" title="Permalink to this headline">¶</a></h2>
+<p>At times, you may not need the functionality that JSON offers-
+so feel free to write your own serializer as express doesn&#8217;t
+restrict you to using JSON only. Just override the
+<tt class="docutils literal"><span class="pre">SERIALIZER</span></tt> configuration variable.</p>
+<p>This makes your app faster (if your serialization protocol is
+well designed) and also more space efficient depending on design,
+and also cuts down bandwidth costs.</p>
+</div>
+<div class="section" id="cache-database-queries">
+<h2>Cache database queries<a class="headerlink" href="#cache-database-queries" title="Permalink to this headline">¶</a></h2>
+<p>This may seem unnecessary in development environments where the
+database and the app is running in the same machine, but in
+production environments where you need to deploy to platform as
+a service providers like Heroku, it&#8217;s best that you at the very
+least, partially cache your database queries.</p>
+<p>You can do so via the two different types of volatile caches that
+express and Werkzeug provides:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">werkzeug.contrib.cache.SimpleCache</span></tt> - recommended for development
+environments but I use it for production environments and it works
+great.</li>
+<li><tt class="docutils literal"><span class="pre">express.contrib.Cache</span></tt> - simple caching service which features
+infinite timeout and expiring cache keys. You may want to subclass
+it to suit your needs since it doesn&#8217;t pack much features.</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Performance</a><ul>
+<li><a class="reference internal" href="#install-the-ujson-library">Install the uJSON library.</a></li>
+<li><a class="reference internal" href="#use-a-custom-serialization-format">Use a custom serialization format</a></li>
+<li><a class="reference internal" href="#cache-database-queries">Cache database queries</a></li>
+</ul>
+</li>
+</ul>
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="design.html" title="previous chapter">Design Decisions</a></li>
+  </ul></li>
+</ul>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/performance.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  <div class="footer">
+    &copy; Copyright 2013, Eugene Eeo.
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  
+  </body>
+</html>

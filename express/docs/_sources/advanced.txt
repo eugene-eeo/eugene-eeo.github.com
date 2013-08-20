@@ -1,0 +1,131 @@
+Advanced Usage
+==============
+
+Here are several options when you need better customization
+of the express framework or when your API becomes larger
+and larger.
+
+
+---------------
+Read the Source
+---------------
+
+Read the source and the documentation- they are all full of
+things that will help you during development. The source is
+fairly well documented, filled with docstrings that are
+identical to the ones in the API docs.
+
+You may also want to read the documentation for the following
+libraries in which express relies on:
+
+- **Flask**: http://flask.pocoo.org
+- **Werkzeug**: http://werkzeug.pocoo.org
+- **Redis**: http://redis-py.readthedocs.org/
+- **SMTPlib** (standard Python library): http://docs.python.org/3.3/library/smtplib.html
+
+--------------
+Use Middleware
+--------------
+
+Express is all about linking multiple objects together, and
+dumping them into one Express instance. Always use home-brewed
+Middleware for larger APIs, since you will know what happens
+under the hood, and you will know all of the details of it's
+operation.
+
+Using middleware is simple thanks to express's simple middleware
+system, which means that you may bind any class that accepts an
+express instance as it's first argument. Wrapping middleware is
+extremely simple::
+
+    import express
+    from mylib import middleware
+
+    app = express()
+    app.use(middleware)
+
+    # now you can access it directly
+    app.middleware
+
+
+--------------------
+Know how things work
+--------------------
+
+.. ATTENTION::
+    No, the code snippets in the docs do not contain a typo or a
+    mistake- you just need to import the express library and then
+    use it as a callable::
+
+        import express;
+        app = express()
+
+You might ask, how do they do that? Well there's an answer for
+you: Read the Source! Or you may refer to the snippet below::
+
+    sys.modules[name] = Express
+
+The express instance, if you look at the code for it, doesn't
+include much- a couple of Flask aliases, and maybe the ``listen``
+method. Most of the magic is provided by other classes within
+the ``helpers`` library, which are automatically integrated into
+the ``express`` instance during creation time.
+
+For example, the configuration functions provided by ``express``
+like ``express().get`` are all sourced from the ``helpers.Configuration``
+object. The ``express().Model`` is sourced from the ``helpers.Model``
+object.
+
+
+---------------------
+Use the Configuration
+---------------------
+
+Use the configuration system of the express instance. Learn what
+each variable does and so on. Doing so will give you almost full
+control over what express does.
+
+
+----------------------------
+Utilize the internal objects
+----------------------------
+
+There are several *internal* objects within the normal express
+instance- like the `Flask` property which houses a Flask object-
+you can use it via something like this::
+
+    from flask import Flask
+    import express
+    web = Flask(__name__)
+
+    app = express()
+    app.Flask = web
+
+    # uses the Flask instance from your app
+    # instead of it's own instance
+    api.listen(5000)
+
+    # or you may use the Flask.run function:
+    app.setup()
+    web.run()
+
+.. NOTE::
+    Always use the ``setup()`` function when setting the internal
+    ``Flask`` instance of an express instance to another ``Flask``
+    instance because if you don't your API mountpoint wouldn't be
+    set as a URL rule.
+
+This makes it possible for you to daisy chain several express
+instances into one single Flask application, making it possible
+for you to utilize several access points for your API. ::
+
+    from my_api import web, auth, db
+    import express
+
+    app = express()
+    for item in [web, auth, db]:
+        item.Flask = app.Flask
+        item.setup()
+
+And then let Flask handle all of the other things like view
+functions, request routing, authentication, sessions for you.

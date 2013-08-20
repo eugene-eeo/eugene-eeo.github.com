@@ -1,0 +1,184 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Welcome to Express’s documentation! &mdash; Express 0.1.0b1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/flasky.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.1.0b1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Express 0.1.0b1 documentation" href="#" />
+    <link rel="next" title="Foreword" href="foreword.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9">
+
+  </head>
+  <body>
+  
+  
+  <div class=indexwrapper>
+  
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="foreword.html" title="Foreword"
+             accesskey="N">next</a> |</li>
+        <li><a href="#">Express 0.1.0b1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="welcome-to-express-s-documentation">
+<h1>Welcome to Express&#8217;s documentation!<a class="headerlink" href="#welcome-to-express-s-documentation" title="Permalink to this headline">¶</a></h1>
+<p><strong>Express</strong> is a lightweight library for designing web APIs, based on
+Flask and Werkzeug for acting as high-level routers. Express is made
+because I needed a robust and easy-to-use API for developing web APIs,
+and a library full of helpers which prevent me from reinventing the wheel.</p>
+<p>Express is a companion to the Synrails library- first you have your TCP
+servers, now you have an entire web API. It is not meant as a reaplcement
+for other frameworks like Flask, but just a library based on them which
+offers some task-specific tools.</p>
+<p>A simple &#8220;Hello World!&#8221; API:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">import</span> <span class="nn">express</span>
+<span class="n">app</span> <span class="o">=</span> <span class="n">express</span><span class="p">()</span>
+
+<span class="nd">@app.serve</span><span class="p">()</span>
+<span class="k">def</span> <span class="nf">serve</span><span class="p">(</span><span class="n">request</span><span class="p">):</span>
+    <span class="n">method</span> <span class="o">=</span> <span class="n">request</span><span class="o">.</span><span class="n">form</span><span class="p">[</span><span class="s">&quot;method&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">app</span><span class="o">.</span><span class="n">Model</span><span class="o">.</span><span class="n">_run</span><span class="p">(</span><span class="n">string</span><span class="o">=</span><span class="n">method</span><span class="p">)</span>
+
+<span class="nd">@app.event</span><span class="p">(</span><span class="s">&quot;hello&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">hello_world</span><span class="p">():</span>
+    <span class="k">return</span> <span class="s">&quot;Hello World!&quot;</span>
+
+<span class="n">app</span><span class="o">.</span><span class="n">listen</span><span class="p">(</span><span class="mi">5000</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Run the script above, and start another Python REPL, preferrably
+with the <tt class="docutils literal"><span class="pre">requests</span></tt> HTTP library installed:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">call</span> <span class="o">=</span> <span class="p">{</span><span class="s">&quot;method&quot;</span><span class="p">:</span><span class="s">&quot;hello&quot;</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">requests</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="s">&quot;http://localhost:5000/&quot;</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">call</span><span class="p">)</span><span class="o">.</span><span class="n">text</span>
+<span class="go">&#39;{&quot;value&quot;:&quot;Hello World!&quot;,&quot;status&quot;:&quot;True&quot;}&#39;</span>
+</pre></div>
+</div>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="foreword.html">Foreword</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="foreword.html#why-another-framework">Why another framework?</a></li>
+<li class="toctree-l2"><a class="reference internal" href="foreword.html#what-is-it-then">What is it, then?</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="intro.html">Introduction</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#getting-started">Getting Started</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#serve-functions">Serve functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#commands">Commands</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#starting-the-server">Starting the server</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#making-api-calls">Making API calls</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#touching-the-advanced-section">Touching the Advanced Section</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="advanced.html">Advanced Usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="advanced.html#read-the-source">Read the Source</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced.html#use-middleware">Use Middleware</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced.html#know-how-things-work">Know how things work</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced.html#use-the-configuration">Use the Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="advanced.html#utilize-the-internal-objects">Utilize the internal objects</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="changelog.html#release-0-1-0b2">Release 0.1.0b2</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pkgindex.html">express</a></li>
+<li class="toctree-l1"><a class="reference internal" href="express.html">express.express</a></li>
+<li class="toctree-l1"><a class="reference internal" href="helpers.html">express.helpers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="contrib.html">express.contrib</a></li>
+<li class="toctree-l1"><a class="reference internal" href="design.html">Design Decisions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="design.html#object-binding-architecture">Object Binding Architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="design.html#module-as-a-class">Module as a class</a></li>
+<li class="toctree-l2"><a class="reference internal" href="design.html#using-flask-werkzeug-as-routers">Using Flask &amp; Werkzeug as Routers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="design.html#difference-between-helpers-contrib">Difference between helpers &amp; contrib</a></li>
+<li class="toctree-l2"><a class="reference internal" href="design.html#not-too-many-features">Not too many features</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="performance.html">Performance</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="performance.html#install-the-ujson-library">Install the uJSON library.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="performance.html#use-a-custom-serialization-format">Use a custom serialization format</a></li>
+<li class="toctree-l2"><a class="reference internal" href="performance.html#cache-database-queries">Cache database queries</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper"><h3>Related Topics</h3>
+<ul>
+  <li><a href="#">Documentation overview</a><ul>
+      <li>Next: <a href="foreword.html" title="next chapter">Foreword</a></li>
+  </ul></li>
+</ul>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/index.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+  <div class="footer">
+    &copy; Copyright 2013, Eugene Eeo.
+    Created using <a href="http://sphinx.pocoo.org/">Sphinx</a>.
+  </div>
+  
+  </div>
+  
+  </body>
+</html>

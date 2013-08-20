@@ -1,0 +1,28 @@
+Foreword
+========
+
+----------------------
+Why another framework?
+----------------------
+
+Yes, I do know about the various web frameworks out there (there's
+one named express for Node.js too, but I didn't know that it existed).
+And there are lots of web frameworks- Django, Pylons, Flask, CherryPy,
+just to name a few.
+
+No, this is not just another framework- I prefer to call it an engine,
+because it does not give you the tools which make up a web framework,
+just a API development library which helps you develop Web APIs.
+
+-----------------
+What is it, then?
+-----------------
+
+It's a library full of helpful functions which I made, and found useful
+for most web applications. Though most of them are quite erratic, I must
+admit. In short, it's a library to help develop APIs.
+
+In the design of the API, I also realized that making too many assumptions
+to what the developer may need is also (extremely) bad as it leads to code
+complexities. So I didn't make many assumptions and threw everything into
+configuration variables.
