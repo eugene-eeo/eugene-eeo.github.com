@@ -1,53 +1,46 @@
 <html>
 <head>
 <style type="text/css">
-* {
-	font-family: Georgia, "Times New Roman", serif;
-	font-size: 13pt;
-	outline: none;
-	background-color: #fff;
-	color: #222;
-}
-a {
-	color: #3b5998;
-	text-decoration: none;
-}
-h1 {
-	font-size: 29pt;
-	margin-bottom: 0px;
-}
-h2 {
-	font-size: 20pt;
-	margin-bottom: 8px;
-}
-code {
-	font-family: monospace;
-	font-size: 11pt;
-}
+@import url(http://fonts.googleapis.com/css?family=Open+Sans:400,300,400italic,300italic);
+    body { width: 750px; margin: 1em auto; font-size: 18px; font-family: "Open Sans", sans-serif; font-weight: 300; }
+    p { font-weight: 300; color: #5E5E5E; }
+    b { font-weight: 400; color: #000000; }
+    i { font-weight: 300; }
+    ul { font:inherit; }
+    h1,h2,h3,h4{font-weight: 300;}
+    h1 { font-size: 1.8em; margin: 0 }
+    h3 {font-size: 1.5em;}
+    h2 { font-size: 1.2em; margin: 0; }
+    h4 { border-top: 1px solid #D3D3D3; border-bottom: 1px solid #D3D3D3; padding: 8px; color: #5E5E5E; margin: 0; font-size: 1.1em; }
+    a { color: #2A6FB7; text-decoration: none; font-weight: 300; }
+    ul, li, table {font:inherit;}
+    div.announce { background-color: rgb(245,245,245); border-top: 1px solid #CCCCCC; border-bottom: 1px solid #CCCCCC; margin: 0 -15px; padding:0 15; }
 </style>
 <title>eugene-eeo</title>
 </head>
 <body>
 <h1>eugene-eeo</h1>
-<hr/>
-Projects: <a href="http://eugene-eeo.github.com/arch">Arch Package Manager</a> (Deprecated) | <a href="forge-plans.html">Forge</a> | <a href="node/index.html">XMLRPC Node</a> | <a href="projects.html">Projects Index</a>
-<hr/>
-<h2>Bienvenue a ma maison!</h2>
+<h4>
+<a href="node/index.html">XMLRPC Node</a> | <a href="projects.html">Projects Index</a> | <a href="express/index.html">express</a> (not <a href="http://expressjs.com">express.js</a>) | <a href="http://eugene-eeo.github.io/brute/">brute</a>
+</h4>
+<h3>Bienvenue a ma maison!</h3>
 <p>
-Welcome to this site, also known to a very few people (specifically, myself), as the backdoor of my mind and a place to post whatever I fancy- including seemingly unrelated and random topics. Some are quite meaningful, while others are quite stupid and rather uncharted. Whatever it is, I hope you enjoy reading through what I have to offer to the Internet. <i><b>Note:</b> Some of the documents are finished, while others aren't.</i>
+Welcome to this site, also known to a very few people (specifically, myself), as the backdoor of my mind and a place to post whatever I fancy- including seemingly unrelated and random topics. Some are quite meaningful, while others are quite stupid and rather uncharted. Whatever it is, I hope you enjoy reading through what I have to offer to the Internet.
 </p>
-<p>
-As of July 1, 2013, I'm more focused on writing poems than coding, so don't really expect me to make any huge changes to anything at all, and only inform me if Node or Forge has some critical error that causes them to work unexpectedly.
-</p>
+<div class="announce">
+	<h2>Note</h2>
+	<p>Some of the documents are finished, while others aren't. All of them do not really relate to one another, though you may find some kind of cryptic pattern.</p>
+</div>
 <p>
 I am mainly a Python programmer, though I did learn a little handful of stuff like C++, C, Rust (fairly new), Perl (never again) and JavaScript. Being used to Python's syntax, I've never quite understood why the complexity must be inbound with C-like languages, including Rust.
 </p>
-<table width="100%" cellpadding="8">
-<tr>
-<td width="33%" valign="top">
+<p>
+I'm also actively developing two different frameworks: the <a href="http://synrails.github.com">Synrails</a> TCP server framework, &amp; <a href="express/index.html">express</a>, which is a toolkit for making web APIs. You might have noticed that my page has changed- whether it's better or worse is up to you to judge.
+</p>
+
 <h2>Documents</h2>
-<hr/>
 <ul>
+<li><a href="simplicity-paradox.html">The Simplicity Paradox</a></li>
 <li><a href="sound.html">Basic Components of Sound</a></li>
 <li><a href="explaining-static-electricity.html">Explaining Static Electricity</a></li>
 <li><a href="how-do-crystals-form.html">How Do Crystals Form</a></li>
@@ -55,11 +48,8 @@ I am mainly a Python programmer, though I did learn a little handful of stuff li
 <li><a href="node-plans.html">XMLRPC Node Concept</a></li>
 <li><a href="perfect-os.html">The Perfect Operating System</a></li>
 </ul>
-</td>
 
-<td width="33%" valign="top">
 <h2>Links</h2>
-<hr/>
 <ul>
 <li><a href="http://git-scm.com">Git VCS</a></li>
 <li><a href="http://www.returninfinity.com/baremetalnode.html">BareMetal Node Concept</a></li>
@@ -72,18 +62,13 @@ I am mainly a Python programmer, though I did learn a little handful of stuff li
 <li><a href="http://developer.android.com/sdk/index.html">Android SDK</a> and the Droid Sans font.</li>
 <li><a href="http://tools.ietf.org/html/rfc6921">RFC-6921</a></li>
 </ul>
-</td>
 
-<td width="33%" valign="top">
 <h2>"Dat" Feelings</h2>
-<hr/>
 <ul>
 <li>When I first compiled a binary using <code>make</code> and <code>make install</code>.</li>
 <li>Saving a possibly match-winning shot from proud players.</li>
 <li><a href="http://static4.fjcdn.com/comments/Something+is+afoot+_081f2ee221fb542c152cb693ede70606.jpg">Proving someone wrong.</a></li>
 <li>Finished a script that properly manages daemons, without external modules like <a href="https://pypi.python.org/pypi/python-daemon/">python-daemon</a>.</li>
 </ul>
-</td>
-</tr></table>
 </body>
 </html>

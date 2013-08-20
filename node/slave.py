@@ -1,5 +1,5 @@
 import xmlrpclib, subprocess, time, os
-server=xmlrpclib.Server('http://192.168.128.8:8000')
+server=xmlrpclib.Server('http://192.168.128.7:8000')
 node_name="slave"
 tasks={}
 server.log(node_name,"%s has started up." % (node_name))
