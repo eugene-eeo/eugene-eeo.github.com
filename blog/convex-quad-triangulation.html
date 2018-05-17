@@ -1,0 +1,150 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link rel='stylesheet' href='styles/document.css'/>
+  <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.8.3/katex.min.css'/>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.8.3/katex.min.js'></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.8.3/contrib/auto-render.min.js'></script>
+  <title>Guarding Convex Quadrilaterals</title>
+  <style>
+table { display: block; }
+td {
+  border: 1px solid #CCC;
+  padding: 0.3em;
+  text-align: center;
+}
+td.g {
+  background-color: #EEE;
+}
+  </style>
+</head>
+<body>
+  <h1>Guarding Convex Quadrilaterals</h1>
+  <p>
+    <b>Problem:</b> given a simple polygon \( P \) of \( n \) vertices and a
+    set of diagonals that partition \( P \) into convex quadrilaterals, find
+    the minimum number of cameras required to guard<sup><a href='#2'>[2]</a></sup> it.
+
+  <p>
+    A convex quadrilateral is a 4 sided polygon such that the interior angle
+    at any vertex is not more than 180 degrees. Given such a definition, we
+    can proceed to make the following claim:
+
+  <blockquote>
+    \( n \) must be in the form \( 2t + 4 \), where \( t \geq 0 \).
+  </blockquote>
+
+  <p>
+    It is easy to see why from Figure 1: 4 vertices are required initially to
+    create the first convex quadrilateral. Since all vertices must define the
+    border of the polygon (from the definition of a vertex), if we want to get
+    one more quadrilateral, 2 more vertices need to be added.
+
+  <div class='row'>
+    <div class='col-1-2'>
+      <img width='100%' src='static/quadshape.png' align='left'/>
+      <figcaption>
+      <b>Figure 1:</b> To add one more quadrilateral, two more white vertices
+      need to be added. \( t \) is also the minimum number of diagonals required
+      to partition \( P \) into convex quadrilaterals.
+      </figcaption>
+    </div>
+    <div class='col-1-2'>
+      <img width='100%' src='static/cannot-add.png' align='left'/>
+      <figcaption>
+      <b>Figure 2:</b> A successive convex quadrilateral cannot be defined with
+      just one more vertice as an inner vertex \( v \) will be 'obsoleted'.
+      </figcaption>
+    </div>
+  </div>
+
+  <p>
+    To find the minimum number of cameras required we can do a four colouring
+    of the graph according to the quadrilaterals<sup><a href='#1'>[1]</a></sup>.
+    We will first prove that choosing the the colour which has the minimum number
+    of nodes, the <i>minimum color</i> from such a coloring is sufficient to guard
+    \( P \). Trivially, we can guard a convex quadrilateral with only one camera,
+    so the minimum color is suitable for guarding it.
+
+  <p>
+    <img src='static/t1.png' align='left' width='30%' />
+
+    Consider the addition of a successive quadrilateral \( Q \), which
+    must be defined by two existing and two new vertices. Because the two
+    existing vertices are already colored, then the remaining new vertices
+    must be colored differently.
+
+  <p>
+    It follows that one of the shared vertices now has the minimum colour,
+    because the number of nodes with the other two colours has increased.
+    This is an important result which will be used in the next step.
+
+  <p>
+    <img src='static/t1-diagonal.png' align='left' width='30%' />
+
+    Let \( v \) be a vertex with a minimum color that is shared by both
+    \( Q \) and \( P \). From the definition of a convex quadrilateral,
+    both of its diagonals must lie inside \( Q \), so the line segment
+    from \( v \) to any of the new vertices of \( Q \) must also lie
+    inside \( Q \).
+
+  <p>
+    To prove the claim for any \( n \), we assume that it the minimum
+    color is sufficient to guard a quadrilateral \( P \). As we have shown
+    above, adding another quadrilateral \( Q \) and coloring it also makes
+    it guard-able by the minimum color. Hence we have shown by induction
+    that the minimum colour from four colouring the vertices is sufficient
+    to guard such a polygon \( P \).
+
+  <p>
+    The upper bound for the number of nodes with the minimum color in a four
+    colouring is, intuitively, the floor of the number of vertices divided by 4
+    (because the residue discarded by flooring is taken up by one or more of
+    the other colors):
+
+    $$
+    \lfloor \frac{n}{4} \rfloor = \lfloor 1 + \frac{t}{2} \rfloor = 1 + \lfloor \frac{t}{2} \rfloor
+    $$
+
+  <p>
+    Another way to approach the same solution is to consider the worse case
+    scenario where the successive quadrilaterals keep being added to one side
+    of the existing polygon. We have shown that we can guard two quadrilaterals
+    by placing a camera in a shared vertice, hence we can guard \( t + 1 \) such
+    quadrilaterals with at most:
+
+    $$
+    \lceil \frac{t+1}{2} \rceil
+    $$
+
+  <p>
+    cameras. (Ceiling is used to correct for \( t = 0 \) and even numbered values.)
+    This is equivalent to \( \lfloor n/4 \rfloor \), and can be verified by
+    analysing cases when \( t \) is an even or odd number, i.e. by plugging in
+    \( t = 2q \) or \( t = 2q+1 \).
+
+  <p>
+    Thus the upper bound on the number of cameras required to guard \( P \)
+    is given by \( \lfloor n / 4 \rfloor \). This does not contradict the
+    Art Gallery Theorem's upper bound of \( \lfloor n / 3 \rfloor \) because
+    we have not exceeded the upper bound.
+
+  <footer>
+    <p>
+      <a name='1'></a><b>[1]:</b> This just means that the nodes that make up
+      any quadrilateral do not have the same colors. For instance, you cannot
+      have a quadrilateral that is made of red, red, blue, and green nodes.
+
+    <p>
+       <a name='2'></a><b>[2]:</b> A set of points \( S \) is said to guard a
+       polygon \( P \) iff for every point \( p \) in the polygon, there exists
+       a point \( q \) from \( S \) such that \( \overline{pq} \) is within \( P \).
+  </footer>
+
+  <script>
+  renderMathInElement(document.body);
+  </script>
+</body>
+</html>

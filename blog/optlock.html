@@ -1,0 +1,192 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link rel='stylesheet' href='styles/document.css'/>
+  <title>Optimistic Locking</title>
+</head>
+<body>
+  <h1>Optimistic Locking</h1>
+  <p>
+  The most commonly taught method of ensuring data-integrity during
+  concurrent operations is known as pessimistic locking, or placing
+  a lock around the entire read and update operation.
+  </p>
+  <div class='row'>
+    <div class='d-bound col-1-2 m-1'>
+      <span class='d-box d-fill'>
+        <span><b>Lock</b></span><br/>
+        <span class='d-box d-fill'>Read</span><br/>
+        <span class='d-box d-fill'>Transform</span><br/>
+        <span class='d-box d-fill'>Update</span>
+      </span>
+      <figcaption>Fig 1: Pessimistic Locking</figcaption>
+    </div>
+    Although this simple model does guarantee that no other writers can
+    modify the data when one is holding the lock, it can lead to abysmal
+    (really bad) performance on low-contention systems, where the writes
+    and conflicts are infrequent.
+  </div>
+  <p>
+  What we hope to achieve when using optimistic locking is to minimise
+  the time that we are within a lock, and by doing so, increasing our
+  throughput. Because when we hold a lock, we stop all other threads
+  from executing. To do this we need a system that satisfies the
+  following assumptions:
+  <ul>
+    <li>
+    <b>There are very few conflicts.</b> This is the most important
+    factor and if it is not met, often renders optimistic locking a
+    slower solution than pessimistic locking.
+    </li>
+    <li>
+    <b>Data transformations are pure and have no side effects.</b> That
+    is, if we are given a transformation function <b><i>T(x) = k</i></b>,
+    for the same input <b><i>x</i></b> we <i>always</i> get <b><i>k</i></b>
+    regardless of any external changes.
+    </li>
+    <li>
+    <b>It is cheap to retry transactions with new versions of data.</b>
+    In some systems this may not hold true, especially if it is
+    computationally intensive to calculate the next version of the
+    data.
+    </li>
+    <li>
+    <b>We can determine conflicts between writes easily and relatively
+    cheaply.</b> There are a few ways of doing this- via a version
+    number which indicates how many times it has been written to,
+    or using immutable data structures so checking if something is
+    different is just using object identity.
+    </li>
+  </ul>
+  </p>
+  <p>
+  The process of applying all changes or no changes at all is known
+  as a transaction. Transactions guarantee (or they <i>should</i>)
+  atomicity, which basically means all or nothing- you either get
+  all changes or no changes. This helps maintain integrity of our
+  data as well.
+  </p>
+  <div class='row'>
+    <div class='d-bound col-1-2 m-1'>
+      <span class='d-box d-fill'>Read/Copy</span><br/>
+      <span class='d-box d-fill'>Transform</span><br/>
+      <span class='d-box d-fill'>
+        <span><b>Lock</b></span><br/>
+        <span class='d-box d-fill'>Check</span>
+        <span class='d-box d-fill'>Swap</span>
+      </span>
+      <figcaption>Fig 2: Optimistic Locking</figcaption>
+    </div>
+
+    Note that the transform step mutates/updates the local copied
+    version. The check step validates whether the version that was
+    copied is outdated. This can be done as previously mentioned via
+    comparing the version or the object identity. If the check fails,
+    the transaction is aborted and restarted. Else, the changes are
+    <i>committed</i>.
+  </div>
+
+  <div class='outline'>
+  <span class='bigtext'>!</span>
+  <b>Important:</b> if we are working with versioned objects,
+  remember to bump the version at the end of the compare-and-swap
+  operation.
+  </div>
+
+  <p>
+  Although in simple systems we can just assume that there is only a
+  binary option: abort or apply changes, in more complex systems we can
+  have more options. Take the VCS tool, Git for example. If we commit
+  to a local copy of the shared data (the repository) and someone else
+  commits as well, we can either:
+  <ul>
+    <li><b>Win</b> - our changes are committed and written to the repo.</li>
+    <li><b>Lose</b> - we need to "replay" our changes atop the changed
+        data structure; essentially, the latest version.</li>
+    <li><b>Merge changes</b> - both our changes can be merged if they
+        do not modify the same files. Else we would need to resolve the
+        conflicts.</li>
+  </ul>
+  </p>
+  <p>
+  Having a side-effect free transformation is also important. For
+  example if we had stored all the transformations performed on the
+  data and we wanted an arbitrary version, we can just apply the
+  transformations to the initial version. A concrete example:
+  </p>
+  <pre><code>changes = [
+    lambda x: x.append(1),
+    lambda x: x.append(2)
+    ]
+data = []
+for item in changes:
+    item(data)
+assert data == [1, 2]</code></pre>
+  <p>
+  No matter how many times we apply the changes, as long as we start
+  from the same initial data we will always get the same final result.
+  This is especially useful if, say we wanted to get the older version
+  of our code. We wouldn't want that to differ due to some external
+  conditions.
+  </p>
+
+  <p>
+  Let's see how a trivial Optimistic Locking implementation would look
+  like in Python. First we will need some machinery for the versioned
+  objects:
+  </p>
+
+  <pre><code>from threading import RLock, Thread
+
+class Versioned:
+    def __init__(self, data):
+        self.data = (data, 0)
+        self.lock = RLock()
+
+    def get(self):
+        return self.data
+
+    def commit(self, new_data, copied_version):
+        with self.lock:
+            if copied_version != self.data[1]:
+                raise Exception
+            self.data = (new_data, copied_version + 1)</code></pre>
+
+  <p>
+  If you look at the <code>Versioned.get</code> method you will
+  notice that there is no locking. There needn't be a lock
+  because we are guaranteed that when the <code>data</code>
+  is modified by the <code>commit</code> method, a lock will
+  be held.
+  </p>
+
+  <p>
+  Then we need the threads to update their copies of the data and
+  automatically retry failed transactions:
+  </p>
+
+  <pre><code>def task():
+    while True:
+        try:
+            data, version = obj.get()
+            obj.commit(data + 1, version)
+            break
+        except:
+            pass
+
+obj = Versioned(0)
+threads = [Thread(target=task) for _ in range(10)]
+[thr.start() for thr in threads]
+[thr.join() for thr in threads]
+
+assert obj.get() == (10, 10)</code></pre>
+
+  <p>
+  It won't solve all your concurrency issues, but when you
+  get a situation which fits the four assumptions, please
+  consider using optimistic locking.
+  </p>
+</body>
+</html>

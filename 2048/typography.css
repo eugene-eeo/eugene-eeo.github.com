@@ -1,0 +1,16 @@
+body {
+  width: 30em;
+  margin: 2em auto;
+  font-family: apple-system, sans-serif;
+  font-size: 16px;
+}
+p {
+  margin: 0;
+  font-size: 1em;
+  text-align: left;
+  line-height: 1.2em;
+}
+p.begin:first-line { font-weight: 800; }
+p + p   { text-indent: 2.5em; }
+p.begin { text-indent: 0; }
+.margin { margin: 1em; }

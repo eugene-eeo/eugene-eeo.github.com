@@ -1,0 +1,330 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset='utf8'/>
+  <meta name='viewport' content='width=device-width, initial-scale=1'/>
+  <link rel='stylesheet' href='styles/document.css'/>
+  <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.8.3/katex.min.css'/>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.8.3/katex.min.js'></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.8.3/contrib/auto-render.min.js'></script>
+  <title>An Analysis of Skip Lists</title>
+  <style>
+  </style>
+</head>
+<body>
+  <h1>An Analysis of Skip Lists</h1>
+
+  <p>
+    The Skip List<sup><a href='#1'>[1]</a></sup> is a probabilistic data structure
+    that has the same average case asymptotic performance as more complex data structures
+    such as AVL trees, balanced trees, etc. on average. The following is a hopefully more
+    understandable probabilistic analysis, curated from various sources.
+
+  <p>
+    This article is <b>not</b> an introduction to the Skip List. For an introduction
+    please read the <a href='http://homepage.cs.uiowa.edu/~ghosh/skip.pdf'>original paper</a>.
+    Terminology here used will be borrowed from said paper.
+
+  <figure>
+    <img width='100%' src='static/skiplist.png'/>
+    <figcaption><b>Figure 1:</b> graphical representation of a skip list.</figcaption>
+  </figure>
+
+  <h2>Expected number of nodes at level \( l \)</h2>
+  <p>
+    Firstly we see how to express \( L(n) \), the level at which there are \( 1/p \)
+    nodes, in terms of \( n \). From the definition of the <b>RandomLevel</b> function,
+    \( p^{l-1} \) is the probability<sup><a href='#2'>[2]</a></sup> that any given node
+    will have an \( l \)-level pointer with the lowest level being level 1<sup><a href='#8'>[8]</a></sup>.
+
+  <pre>
+randomLevel()
+  newLevel := 1
+  -- random() returns a random value in [0..1)
+  while random() &lt; p do
+    newLevel := newLevel + 1
+  return min(newLevel, MaxLevel)</pre>
+  <figcaption>William Pugh's original <b>RandomLevel</b> function<sup><a href='#1'>[1]</a></sup>.
+    Note that this function takes non-constant<sup><a href='#4'>[4]</a></sup> time.</figcaption>
+
+  <p>
+    Intuitively<sup><a href='#3'>[3]</a></sup>, multiplying this by the number of nodes
+    in the list gives us the expected number of nodes in each level:
+
+    $$
+    \#(n, l) = n p^{l-1}
+    $$
+
+  <p>
+    Finding the expression for \( L(n) \) simply requires some logarithms:
+
+    $$
+    \begin{aligned}
+    n p^{L(n)-1} &amp;= \frac{1}{p} \\
+               n &amp;= p^{-L(n)} \\
+           \lg n &amp;= L(n) \lg \frac{1}{p} \\
+            L(n) &amp;= \log_{\frac{1}{p}}{n}
+    \end{aligned}
+    $$
+
+  <h2>Expected length of search paths</h2>
+  <p>
+    We will now analyze the <i>expected</i> length of a search path, i.e. how many
+    movements to make in order to get to any node within the list by adopting the
+    approach of the original paper:
+
+  <blockquote>
+    We analyze the search path backwards, travelling up and to the left. Although the
+    levels of nodes in the list are known and fixed when the search is performed, we
+    act as if the level of a node is being determined only when it is observed while
+    backtracking the search path.
+  </blockquote>
+
+  <p>
+    Let \( \text{cost}(k) \) denote the expected cost (the number of movements
+    needed) for climbing up \( k \) levels in an infinite list – no matter how
+    many leftward movements we make, we never reach the header of the list. When
+    we reach any level \( k \) we will be able to either:
+
+  <ol>
+    <li>Move up a level with probability \( p \).</li>
+    <li>Move left with probability \( 1 - p \).</li>
+  </ol>
+
+  $$
+  \begin{aligned}
+  \text{cost}(k) &amp;= p(1 + \text{move up}) + (1 - p)(1 + \text{move left}) \\
+                 &amp;= p(1 + \text{cost}(k-1)) + (1 - p)(1 + \text{cost}(k)) \\
+                 &amp;= 1 / p + \text{cost}(k-1) \\
+                 &amp;= k / p
+  \end{aligned}
+  $$
+
+  <p>
+    Since we are analyzing an infinite list, we cannot use \( \text{cost}(k) \)
+    all the way for \( n = \infty \). So we'll only use this technique until we've
+    reached a level where we know that we have a fixed amount of nodes, independent
+    of \( n \). Where is such a level? \( L(n) \)! When we are at level \( L(n) \)
+    we expect \( 1 / p \) nodes. It follows that the number of nodes at level
+    \( l + L(n) \) is:
+
+    $$
+    \frac{1}{p} \, p^l = p^{l-1}
+    $$
+
+  <p>
+    Again assume that there are \( \infty \) levels after \( L(n) \), and take
+    the pessimistic assumption that we need to traverse every node along all of the
+    levels to the topmost level. The upper bound on the total movements required to
+    get to the topmost level \( \infty \) is then:
+
+    $$
+    \sum^{\infty}_{l=1}{p^{l-1}} = \frac{1}{1-p}
+    $$
+
+  <p>
+    Combining this with the previous results, we use the cost function until level
+    \( L(n) \) and add the number of movements we make afterwards, we end up with
+    the same expression for the expected upper bound as given by the paper:
+
+    <div class='em-box'>
+    $$
+    \text{cost}(L(n)) + \frac{1}{1-p} = \frac{L(n)}{p} + \frac{1}{1-p} \approx O(\log n)
+    $$
+    </div>
+
+  <h2>Bounding the height</h2>
+  <p>
+    We will follow the analysis given in <a href='#5'>[5]</a>, a more straightforward
+    way to derive the asymptotic cost of traversal operations. Let \( P_l \) denote the
+    probability of there being at least one node in a list of size \( n \) in the
+    \( l \)-th level. We have established previously that the probability of a node
+    being in level \( l \) is given by \( p^{l-1} \):
+
+    $$
+    P_l \leq np^{l-1},
+    $$
+
+  <p>
+    because each of the \( n \) nodes have equal chance of being part of level
+    \( l \), and \( P_l \) is the probability of <i>any</i> of those \( n \) nodes
+    being part of level \( l \). The probability of there being a node at level
+    (\( c\log_{\frac{1}{p}}{n} + 1 \)) is:
+
+    $$
+    \begin{aligned}
+    P_{c\log_{1/p}{n}+1} &amp;\leq np^{c\log_{1/p}{n}} \\
+                       &amp;= np^{-c\log_p{n}} \\
+                       &amp;= nn^{-c} \\
+                       &amp;= \frac{1}{n^{c-1}}
+    \end{aligned}
+    $$
+
+  <p>
+    Thus we can say that the probability that the height of the tree will be lower
+    than, say \( 3\log_{\frac{1}{p}}{n} + 1\) is given by<sup><a href='#6'>[6]</a></sup>
+    \( 1 - 1/n^2 \). Therefore the height of the tree grows logarithmically
+    <i>with high probability</i> and thus it follows that the traversal operations
+    are also \( O(\log n) \).
+
+  <h2>Probabilistic Analysis</h2>
+  <p>
+    We now proceed to do a probabilistic analysis of the Skip List search path
+    length - instead of just finding the expected length we can now find the
+    probability distribution of the length. This approach is almost the same as
+    the one in the original paper.
+
+  <p>
+    We will use two distributions: the binomial distribution \( B(n, p) \)
+    and the negative binomial distribution<sup><a href='#9'>[9]</a></sup><sup><a href='#10'>[10]</a></sup>
+    \( NB(s, p) \). Let \( B(n, p) \) denote a random variable equal to the
+    number of successes seen in a series of \( n \) trials each with probability
+    of success \( p \). Similarly let \( NB(s, p) \) denote a random variable
+    equal to the number of failures, each occurring with probability \( 1 - p \)
+    before \( s \) successes are seen.
+
+  <p>
+    Let's first climb to level \( L(n) \). Intuitively we need to climb up
+    \( L(n) - 1 \) levels, and then add a certain number of leftward movements
+    in case there is no level above us. This number of movements is given by
+    \( NB(L(n) - 1, p) \).
+
+  <p>
+    To see why, consider the following: the probability that we
+    have to move leftwards once is \( 1 - p \). Thus \( NB(1, p) \) tells us
+    the number of leftward movements ('failures') we have to make in order to
+    have a level above us ('success'). Therefore the cost to climb up to level
+    \( L(n) \) in an infinite list is:
+
+    $$ (L(n) - 1) + NB(L(n) - 1, p) $$
+
+  <p>
+    Next let's find the remaining movements to make so that we reach the top of
+    the header of the list. Remember that we are at level \( L(n) \) now, and
+    the number of nodes at \( L(n) \) is given by \( B(n, 1/np) \).
+
+  <figure>
+    <img src='static/skiplist-nb.png' width='90%'/>
+    <figcaption><b>Figure 2:</b> \(m + 1\) leftward movements needed to reach the header.</figcaption>
+  </figure>
+
+  <p>
+    Therefore we need to move left \( B(n, 1/np) + 1 \) times in order to
+    reach the header of the list (refer to Figure 2 for a visual aid). Once
+    we are there, we need to move up \( NB(1, 1-p) \) times<sup><a href='#11'>[11]</a></sup>
+    now to reach the top of the header, and the starting point of our search.
+    Therefore we have:
+
+    $$ B(n, 1/np) + 1 + NB(1, 1-p) $$
+
+  <p>
+    Now we combine our results to provide an upper bound (because the negative
+    binomial distribution can include infinite trials) on the search path length
+    for finite lists:
+
+    <div class='em-box'>
+    $$
+    \begin{aligned}
+    (L(n) - 1) + NB(L(n) - 1, p) \\
+    + B(n, 1/np) + 1 + NB(1, 1-p)
+    \end{aligned}
+    $$
+    </div>
+
+  <p>
+    The expected value of such an expression is:
+
+    $$
+    (L(n) - 1) + \frac{(L(n) - 1)(1 - p)}{p} + \frac{1}{p} + 1 + \frac{p}{1-p},
+    $$
+
+  <p>
+    which after some rearrangement you should find that it is equal to the
+    previous expression that we've found for the expected length of the
+    search path,
+
+    $$
+    \frac{L(n)}{p} + \frac{1}{1-p}
+    $$
+
+  <h2>Avg. number of pointers per node</h2>
+  <p>
+    Finally let's warm down by looking at how to get the average number of pointers
+    per node, which should be relatively straightforward:
+
+    $$
+    \text{total}(n) = \sum^{\infty}_{l=1}{\#(n, l)} = n \sum^{\infty}_{l=1}{p^{l-1}} = \frac{n}{1-p}
+    $$
+
+  <p>
+    To get the average number of pointers required, just divide by \( n \),
+    in which we will end up with \( 1 / (1-p) \). The above expression also
+    implies that the storage requirements are \( O(n) \).
+
+  <footer>
+    <p>
+    <a name='1'></a>
+    <b>[1]:</b> William Pugh: <a href='http://homepage.cs.uiowa.edu/~ghosh/skip.pdf'>Skip Lists: A Probabilistic Alternative to Balanced Trees</a>
+
+    <p>
+    <a name='2'></a>
+    <b>[2]:</b> Actually the probability of there being an \( l \)-level pointer
+    when \( l \gt \text{MaxLevel} \) is zero, but let's ignore this detail for
+    simplicity. Our analysis is pessimistic so it will be safe (and much cleaner)
+    to take \( \text{MaxLevel} = \infty \).
+
+    <p>
+    <a name='3'></a>
+    <b>[3]:</b> Less intuitively, it's because the nodes that have a certain level
+    are distributed according to a binomial distribution \( B(n, p^{l-1}) \), and
+    the expected value of such a distribution is \( np^{l-1} \).
+
+    <p>
+    <a name='4'></a>
+    <b>[4]:</b> As noted in <a href='https://ticki.github.io/blog/skip-lists-done-right/'>Skip Lists: Done Right</a>,
+    the original paper made the mistake of having level-generation take non constant
+    time. A constant time implementation is provided in the link; here is the relevant
+    pseudo-code for completeness:
+<pre>
+define generate_level():
+    -- First we apply some mask which makes sure that we don't get a level
+    -- above our desired level. Then we find the first set bit.
+    ffz(random() &amp; ((1 &lt;&lt; max_level) - 1))</pre>
+
+    <p>
+    <a name='5'></a>
+    <b>[5]:</b> <a href='https://www.ics.uci.edu/~pattis/ICS-23/lectures/notes/Skip%20Lists.pdf'>https://www.ics.uci.edu/~pattis/ICS-23/lectures/notes/Skip%20Lists.pdf</a>
+
+    <p>
+    <a name='6'></a>
+    <b>[6]:</b> Because \( P_l \) is the probability of there being one node at level
+    \( l \), this means that \( P_l \) is also the probability of the list having height
+    \( l \). Thus \( 1 - P_l \) must be the probability that the height is less than
+    \( l \).
+
+    <p>
+    <a name='8'></a>
+    <b>[8]:</b> Starting from level 1 is easier as it allows us to easily derive the
+    expected search path length without fussing with partial fractions, though I see
+    the attraction in starting from level 0, which gives subjectively nicer looking
+    equations.
+
+    <p>
+    <a name='9'></a>
+    <b>[9]:</b> <a href='https://en.wikipedia.org/wiki/Negative_binomial_distribution'>https://en.wikipedia.org/wiki/Negative_binomial_distribution</a>
+
+    <p>
+    <a name='10'></a>
+    <b>[10]:</b> <a href='http://www.johndcook.com/negative_binomial.pdf'>John D. Cook: Notes on the Negative Binomial Distribution</a>
+
+    <p>
+    <a name='11'></a>
+    <b>[11]:</b> We need to find the remaining number of levels above \( L(n) \).
+    The probability of a level being above us is \( p \); modelling this situation
+    with the negative binomial, a 'failure' occurs with probability \( p \), thus
+    we have \( NB(1, 1-p) \) since we are interested in how many levels before
+    we run out of levels (slightly awkward way to put it).
+  </footer>
+  <script>renderMathInElement(document.body);</script>
+</body>
+</html>

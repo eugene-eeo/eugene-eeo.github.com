@@ -1,3 +1,0 @@
-.. automodule:: express.contrib
-    :members:
-    :noindex:

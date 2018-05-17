@@ -1,0 +1,229 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link rel='stylesheet' href='styles/document.css'/>
+  <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.8.3/katex.min.css'/>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.8.3/katex.min.js'></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.8.3/contrib/auto-render.min.js'></script>
+  <title>Ninja: N-Dice Sums</title>
+  <style>
+table  { font-size: 1.1em; margin: 1em; }
+td, th { border: 1px solid #000; padding: 0.3em; text-align: center; }
+th     { background-color: #EEE; }
+  </style>
+</head>
+<body>
+  <h1>Ninja: N-Dice Sums</h1>
+  <p>
+    The following article describes how to derive a (recursive)
+    probability distribution for the sum of rolling N-dice (the
+    fruit ninja slices and dices) with very rudimentary probability
+    and statistics knowledge.
+  <p>
+    We are all familiar with the distribution for a fair, 6-sided die:
+  <center>
+  <table>
+    <tr>
+      <th>\(x\)</th>
+      <td>1</td>
+      <td>2</td>
+      <td>3</td>
+      <td>4</td>
+      <td>5</td>
+      <td>6</td>
+    </tr>
+    <tr>
+      <th>\(P(x)\)</th>
+      <td>\(\frac{1}{6}\)</td>
+      <td>\(\frac{1}{6}\)</td>
+      <td>\(\frac{1}{6}\)</td>
+      <td>\(\frac{1}{6}\)</td>
+      <td>\(\frac{1}{6}\)</td>
+      <td>\(\frac{1}{6}\)</td>
+    </tr>
+  </table>
+  </center>
+  <p>
+    What about that of a two dice? Those of you familiar with
+    combinations will immediately jump to a solution. However
+    we'll be using a more simplistic approach. Let \(X\) be the
+    sum of the faces of the two dice, and \(P_2\) the probability
+    function for the sum. Then what we want to find is:
+
+    $$
+    P_2(X=x) = \sum{P(i) \times P(j)}
+    $$
+
+  <p>
+    subject to \(i + j = x\), and \(i, j \in \{1,2,3 \ldots 6\}\).
+    We can then use this definition to find the probability distribution.
+    So to calculate the distribution for 2 dice:
+
+    $$
+    \begin{aligned}
+    P_2(2) &amp;= P(1)P(1) = \frac{1}{36} \\
+    P_2(3) &amp;= P(1)P(2) + P(2)P(1) = \frac{2}{36} \\
+    P_2(4) &amp;= P(1)P(3) + P(2)P(2) + P(3)P(1) = \frac{3}{36} \\
+           &amp;\ldots
+    \end{aligned}
+    $$
+
+  <p>
+    Simple enough. Now let's generalise our formula and say
+    that, for \(N\) dice rolls the probability distribution over
+    the set of outputs \(X\), we can write:
+
+    $$
+    \begin{aligned}
+        P_N(X=x) &amp;= \sum{P_{N-1}(i) \times P_1(j)} \\
+   \text{where } &amp;\, i + j = x, \\
+     \text{and } &amp;\, j \in \{1,2,3, \ldots 6\}
+    \end{aligned}
+    $$
+
+  <p>
+    Which is the same as saying that the probability of the
+    sum being \(x\) is the sum of the probability of the
+    previous \(N-1\) dice rolls being \(i\) times (and) the probability
+    of the N<sup>th</sup> dice roll being \(j\), where \(i + j = x\).
+    We'll now simplify the expression by noting that for any value
+    of \(j\), \(P_1(j) = \frac{1}{6}\).
+
+    $$
+    P_N(X=x) = \frac{1}{6}\sum^u_{i=l}{P_{N-1}(i)}
+    $$
+
+  <div class='outline'>
+    <span class='bigtext'>?</span>
+    <b>Note:</b> I picked this recursive form because it frees
+    us from having to think about the combination of values
+    required. For example if we want to build the value 4 from
+    3 dice rolls, we don't have to think about the combinations,
+    i.e. {1,1,2}, {1,2,1}, {2,1,1}.
+  </div>
+
+  <p>
+    All that's left to do now is to find the upper and
+    lower bounds, \(u\) and \(l\) respectively, for the sum.
+    Now see that \(1 \leq j \leq 6\) needs to be satisfied
+    because \(P_1\) only has non-zero values for 1 to 6.
+    From \(i + j = x\):
+
+    $$
+    1 \leq x - i \leq 6
+    $$
+
+  <p>
+    After some rearranging and solving for \(i\), we arrive
+    at the following pair of inequalities:
+
+    $$
+    \begin{aligned}
+    i &amp;\geq x - 6 \\
+    i &amp;\leq x - 1
+    \end{aligned}
+    $$
+
+  <p>
+    At the same time, we know that \(u\) cannot be larger
+    than \(6(N-1)\) because it is the maximum value of \(x\) for
+    the previous distribution. Also, \(l\) cannot be smaller
+    than \(N - 1\), the smallest value for the previous
+    distribution. So we have, combining with our previous
+    inequalities:
+
+    $$
+    \begin{aligned}
+    l &amp;= \max(N - 1, x - 6) \\
+    u &amp;= \min(x - 1, 6(N - 1))
+    \end{aligned}
+    $$
+
+  <p>
+    Which is the same as saying that:
+    <ul>
+      <li>
+        We start from \(N - 1\) when it is possible to
+        add a value \(j\) from 1 to 6 (inclusive) such that
+        \(i + j = x\).
+      </li>
+      <li>
+        If it is not possible, then we will have to start
+        from \(x - 6\) since \(x - 6\) is now greater than
+        the lowest value of the previous distribution.
+      </li>
+      <li>
+        End at \(x - 1\) when we can add 1 to the last value
+        of \(i\) such that \(i + 1 = x\), and when it is
+        smaller than the maxmimum value of the previous
+        distribution.
+      </li>
+    </ul>
+
+  <p>
+    Putting it all together we have:
+
+    $$
+    \begin{aligned}
+       P_1(x) &amp;= \frac{1}{6} \\
+     P_N(X=x) &amp;= \frac{1}{6}\sum_{i=l}^{u}{P_{N-1}(i)} \\
+\text{where }\, l &amp;= \max(N - 1, x - 6), \\
+                u &amp;= \min(x - 1, 6(N - 1))
+    \end{aligned}
+    $$
+
+  <h2>Simulation</h2>
+  <p>
+    Ninja is the name for a project on Github modelling the
+    probability distribution of the sum of N-dice. You can
+    find it at <a href='https://github.com/eugene-eeo/ninja'>eugene-eeo/ninja</a>,
+    and run the simulations yourself. The distributions are
+    simulated using the same technique as highlighted above,
+    namely:
+
+    $$
+    \begin{aligned}
+        P_N(X=x) &amp;= \sum{P_{N-1}(i) \times P_1(j)} \\
+   \text{where } &amp;\, i + j = x, \\
+     \text{and } &amp;\, j \in \{1,2,3, \ldots 6\}
+    \end{aligned}
+    $$
+
+  <p>
+    The core of the simulation algorithm is:
+
+  <pre>
+from collections import defaultdict
+from fractions import Fraction
+
+
+def dice_sum(prev_dist=None):
+    p = Fraction(1, 6) # 1/6
+    if prev_dist is None:
+        return {n: p for n in range(1, 6+1)}
+
+    dist = defaultdict(Fraction)
+    for i in prev_dist:
+        for j in range(1, 6+1):
+            dist[i+j] += prev_dist[i] * p
+    return dist</pre>
+
+  <p>
+    It is generational and only requires the previous
+    distribution to calculate the next. As such the distribution
+    for the N<sup>th</sup> roll can be calculated fairly quickly
+    in roughly <b>O(N)</b> time.
+
+  <p>
+    Because we are using arbitrary precision arithmetic in
+    the form of fractions and bignums in Python we can also
+    store and compare the values exactly. You can find the
+    results from both the <a href='/ninja/results.html'>simulation</a>
+    and <a href='/ninja/results2.html'>computation</a>.
+  <script>
+  renderMathInElement(document.body);
+  </script>
+</body>
+</html>

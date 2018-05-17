@@ -1,0 +1,25 @@
+<!doctype html><meta charset=utf-8><style>body{font-family:Georgia,serif;font-size:16px;width:35em;margin:3em auto}code,pre{font-family:Inconsolata,Menlo,Consolas,monospace}li{margin:.5em 0}.has-jax{font:inherit;font-size:90%}h1,h2,h3{font-weight:400}hr{background-color:#000;border:0;height:1px}.footnotes{margin-top:5em;font-size:.75em}table{border-collapse:collapse}th{background-color:#EEE}td,th{border:1px solid #000;padding:.2em .5em}</style><title>big unsigned integers</title><h1>big unsigned integers</h1><pre><code class=language-js>function big_uint(x) {
+   return (x + '').replace(/^0+/, '');
+}
+
+function leftPadZeros(x, zeroCount) {
+   for (var i = (zeroCount - x.length); i--;) {
+      x = &quot;0&quot; + x;
+   }
+   return x;
+}
+
+big_uint.cmp = function(x, y) {
+   var max = Math.max(x.length, y.length);
+   var lhs = leftPadZeros(x, max);
+   var rhs = leftPadZeros(y, max);
+
+   if (lhs &lt; rhs)   return -1;
+   if (lhs === rhs) return 0;
+   return 1;
+};
+
+big_uint.lt = function(x,y) { return big_uint.cmp(x, y) == -1; };
+big_uint.eq = function(x,y) { return big_uint.cmp(x, y) == 0; };
+big_uint.gt = function(x,y) { return big_uint.cmp(x, y) == 1; };
+</code></pre><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.8.3/katex.min.css><script src=https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.8.3/katex.min.js></script><script>!function(){function e(e){var t=e.match(a);return t?{TeX:t[1]||t[2],displayMode:!!t[1]}:null}for(var t=document.getElementsByTagName("code"),a=/(?:^\$\$\s*([\s\S]+)\s*\$\$$)|(?:^\$\s*([\s\S]+)\s*\$$)/,s=t.length;s--;){var n=t[s],r=e(n.textContent);r&&(katex.render(r.TeX,n,{displayMode:r.displayMode,throwOnError:!1}),n.classList.add("has-jax"))}}()</script>

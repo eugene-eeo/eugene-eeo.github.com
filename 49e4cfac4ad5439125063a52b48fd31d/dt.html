@@ -1,0 +1,68 @@
+<!doctype html>
+<html>
+<head>
+  <title>eraserdust's</title>
+  <meta name='viewport' content='width=device-width, initial-scale=1'/>
+  <style>
+    @import url('https://fonts.googleapis.com/css?family=Roboto:300,400');
+    body {
+      font-family: 'Roboto', sans-serif;
+      font-size: 16px;
+      width: 30em;
+      margin: 3em auto;
+    }
+    .bigday { color: crimson; }
+    #timer { font-size: 3em; font-weight: 300; }
+    table { border-spacing: 0; border-collapse: collapse; }
+    tr > td:first-child { font-weight: 400; font-style: normal; width: 2em; text-align: right; padding-right: 0.3em; }
+  </style>
+</head>
+<body>
+  <div id='timer'>
+    <table>
+      <tr><td id='years'></td><td>years,</td></tr>
+      <tr><td id='months'></td><td>months,</td></tr>
+      <tr><td id='days'></td><td>days,</td></tr>
+      <tr><td id='hours'></td><td>hours,</td></tr>
+      <tr><td id='minutes'></td><td>minutes,</td></tr>
+      <tr><td id='seconds'></td><td>seconds.</td></tr>
+    </table>
+  </div>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.17.1/moment.min.js'></script>
+  <script>
+!function(){
+  function $(q) { return document.querySelector(q); }
+  var start = moment([2016, 4, 15]); // 15/05/16
+  var monthsaryDay = 15;
+  var end = moment('10-09-2017 08:12', 'DD-MM-YYYY HH:mm');
+  var restart = moment('17-02-2018 08:12', 'DD-MM-YYYY HH:mm');
+
+  function dateMin(a, b) {
+    if (a.isBefore(b)) {
+      return a
+    }
+    return b
+  }
+
+  function update() {
+    var now = moment();
+    var diff = moment.duration(end.diff(start)).add(now.diff(restart));
+    if (now.date() == monthsaryDay) {
+      months.classList.add('bigday');
+    } else {
+      months.classList.remove('bigday');
+    }
+    $('#years').textContent = diff.years();
+    $('#months').textContent = diff.months();
+    $('#days').textContent = diff.days();
+    $('#hours').textContent = diff.hours();
+    $('#minutes').textContent = diff.minutes();
+    $('#seconds').textContent = diff.seconds();
+  }
+
+  update();
+  setInterval(update, 1*1000);
+}();
+  </script>
+</body>
+</html>

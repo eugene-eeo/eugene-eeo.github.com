@@ -1,0 +1,120 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link rel='stylesheet' href='styles/document.css'/>
+  <title>Recursion to Iteration</title>
+</head>
+<body>
+  <h1>Recursion to Iteration</h1>
+  <p>
+  In most languages without the niceties of tail-call
+  optimisation, elegant recursive solutions often degrade
+  quickly into solutions which take up extensive amounts
+  of memory; we know creating a new stack frame for each
+  function call is expensive. A typical application for
+  recursive functions is the depth-first&nbsp;search:
+  </p>
+  <pre>
+def search_graph(graph, name):
+    for node in graph:
+        if node.name == name:
+            yield node
+        nodes = search_graph(node.children, name)
+        for item in nodes:
+            yield node</pre>
+  <p>
+  There&#8217;s a way around this that will need us to rethink
+  the <i>fundamental</i> way which we approach problems.
+  Using a LIFO stack we can refactor our recursive solutions
+  into iterative&nbsp;ones:
+  </p>
+  <pre>
+def search_graph(graph, name):
+    stack = list(graph)
+    while stack:
+        node = stack.pop()
+        if node.name == name:
+            yield node
+        stack.extend(node.children)</pre>
+  <p>
+  The way the iterative method works is quite&nbsp;unorthodox:
+  </p>
+
+  <div class='row'>
+    <div class='col-1-2'>
+      We create a list of nodes from a <i>graph</i>, which
+      is an iterable of nodes (this is important in order to
+      support generators).
+    </div>
+    <div class='d-bound col-1-2'>
+      <span class='d-box'>N1</span>
+      <span class='d-box'>N2</span>
+      <span class='d-box'>N3</span>
+    </div>
+  </div>
+  <div class='row'>
+    <div class='col-1-2'>
+      Pop a node from the stack, and yield it if it
+      matches our criteria.
+    </div>
+    <div class='d-bound col-1-2'>
+      <span class='d-box'>N1</span>
+      <span class='d-box'>N2</span>
+    </div>
+  </div>
+  <div class='row'>
+    <div class='col-1-2'>
+    We also extend the stack with the children of the
+    node. This is because we want to make sure that
+    the next popped node is a node that is a child of
+    the current node. Then steps 1 to 3 are repeated
+    indefinitely until the stack is exhausted.
+    </div>
+    <div class='d-bound col-1-2'>
+      <span class='d-box'>N1</span>
+      <span class='d-box'>N2</span>
+      <span class='d-box'>N3.1</span>
+      <span class='d-box'>N3.2</span>
+      <span class='d-box'>N3.3</span>
+    </div>
+  </div>
+
+  <p>
+  To implement breadth-first search version of our
+  graph-searching algorithm, our approach is a little
+  different. Instead of using a LIFO stack we must use
+  a FIFO&nbsp;queue:
+  </p>
+
+  <pre>
+from collections import deque
+
+def breadth_first(graph, name):
+    queue = deque(graph)
+    while queue:
+        node = queue.popleft()
+        if node.name == name:
+            yield node
+        queue.extend(node.children)</pre>
+
+  <p>
+  Notice that the semantics and behaviour have changed
+  differently just from a few lines of code change. The
+  visualisation of a FIFO queue is an excercise left to
+  the reader. Note that in this case, using a double-ended
+  queue (<code><a href="https://docs.python.org/3/library/collections.html#collections.deque">deque</a></code>)
+  is more efficient since we&#8217;re shifting elements from the
+  &#8220;head&#8221; of the array rather than the&nbsp;end.
+  </p>
+
+  <p>
+  When there are cyclic references which often blow up
+  recursive programs, the recommended approach (from experience)
+  is to use a <code><a href="https://docs.python.org/3/library/stdtypes.html#set-types-set-frozenset">set</a></code>
+  of &#8220;seen&#8221; elements if your data-structures are&nbsp;hashable.
+  </p>
+</body>
+</html>
+

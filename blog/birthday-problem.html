@@ -1,0 +1,140 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link rel='stylesheet' href='styles/document.css'/>
+  <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.8.3/katex.min.css'/>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.8.3/katex.min.js'></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.8.3/contrib/auto-render.min.js'></script>
+  <title>Birthday Problem</title>
+  <script>
+window.addEventListener('DOMContentLoaded', function() {
+  renderMathInElement(document.body);
+  renderMathInElement(document.getElementById('foot'));
+});
+  </script>
+</head>
+<body>
+  <h1>Birthday Problem</h1>
+  <p>
+    Given a class of size \(N\), what's the probability
+    of <i>two</i> students sharing the same birthday? <a href='http://mathforum.org/dr.math/faq/faq.birthdayprob.html'>A
+      classical statistics problem</a>. The answer to that,
+    rather unintuitively is:
+
+    $$
+    1 - \frac{365!}{(365 - N)! \times 365^N}
+    $$
+
+  <p>
+    We can see that the probability of birthday-sharing
+    rises very quickly with respect to \(N\). In fact
+    you need 23 people to have more than 50% chance of
+    sharing a birthday.
+
+  <p>
+    There is also such a problem in crypography. When
+    expressed formally - given a hash function with a
+    finite (and this is crucial) number of outputs \( H \),
+    find a message/'image' \(x\), and a different one \(x'\),
+    such that<a href='#1'>[1]</a>:
+
+    $$
+    \text{hash}(x) = \text{hash}(x')
+    $$
+
+  <p>
+    We know that the attacker will eventually find \(x\)
+    and \(x'\) because hash functions have finite outputs -
+    if they produce 128-bits for example then the space
+    is just \(2^{128}\); while the sizes of their inputs
+    are usually larger than their outputs. For instance
+    SHA1 has a block size of 512 bits while it's digest
+    (output) is only 160 bits.
+
+  <p>
+    The birthday attack exploits the solution to the birthday
+    problem- you can see where this is going; if we have
+    a finite amount of output \(H\) then the probability
+    of finding \(x'\) after \(N\) trials with unique
+    inputs is:
+
+    $$
+    1 - \frac{H!}{(H - N)! \times H^N}
+    $$
+
+  <p>
+    This brings out a host of problems- particularly in
+    digital signatures. A common example of an 'attack'
+    is the following:
+
+    <ul>
+      <li>Mallory generates a lot of versions of a fair
+          contract \(x\), e.g. by re-wording it, changes
+          in punctuation etc, such that it will still
+          be acceptable for Bob.</li>
+      <li>Mallory also generates a lot of versions of a
+          fraudulent contract \(x'\). She then finds the
+          version of the fair and unfair contracts that
+          have the same hash.</li>
+      <li>She gives \(x\) to Bob, who then signs it. She
+          then attaches the signature to \(x'\), therefore
+          proving that Bob has signed \(x'\).</li>
+    </ul>
+
+  <p>
+    The Birthday Attack is a test on collision resistance
+    and second-image resistance (how easy it is to find
+    \(x'\), not just through brute forcing but e.g. using
+    analysis of the algorithm).
+
+  <p>
+    To make such attacks uneconomical<a href='#2'>[2]</a>
+    the hash function should choose a large enough \(H\)
+    and it is simple to see why &mdash; from our expression
+    for the probability, \(H^N\) grows much faster than \(H!\).
+</body>
+<footer id='foot'>
+  <p>
+    <a name='1'></a>
+    <b>[1]:</b> For the unfamiliar: cryptographic hash
+    functions are functions that satisfy the following
+    properties (usually referred to as the 'ideal properties'):
+    <ul>
+      <li>
+        Given the hash \(y\), it is hard to find the corresponding
+        input \(m\) such that \(\text{hash}(m) = y\), other than by
+        trying all values; i.e. it is hard to compute in another
+        direction. Other functions that satisfy this are known
+        as trapdoor functions.
+      </li>
+      <li>
+        It is hard/impossible to find a different message
+        which has the same hash.
+      </li>
+      <li>
+        Small change in a message should result in a large change
+        in the output.
+      </li>
+      <li>
+        It should be fast to evaluate.
+      </li>
+    </ul>
+  <p>
+    <a name='2'></a>
+    <b>[2]:</b> Actually there are more ways to do this; one
+    way is to make it hard to compute the hash- for example
+    by requiring the attacker to take the hash of the hash
+    (time-hard) or using a memory-hard algorithm that uses
+    up a lot of memory.
+
+  <p>
+    Modern algorithms such as <code>scrypt</code>
+    or the bleedging edge, <code>argon2</code> have configurable
+    \(\tau\) (time) and \(m\) (memory) requirements to make them
+    more resistant against improvements from Moore's Law and using
+    highly specialised chips. But those are implementation details
+    and should largely be avoided in higher level overviews.
+</footer>
+</html>

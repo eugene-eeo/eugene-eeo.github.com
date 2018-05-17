@@ -1,0 +1,22 @@
+<!doctype html><meta charset=utf-8><style>body{font-family:Georgia,serif;font-size:16px;width:35em;margin:3em auto}code,pre{font-family:Inconsolata,Menlo,Consolas,monospace}li{margin:.5em 0}.has-jax{font:inherit;font-size:90%}h1,h2,h3{font-weight:400}hr{background-color:#000;border:0;height:1px}.footnotes{margin-top:5em;font-size:.75em}table{border-collapse:collapse}th{background-color:#EEE}td,th{border:1px solid #000;padding:.2em .5em}</style><title>single alloc read</title><h1>single alloc read</h1><pre><code class=language-go>// r io.Reader
+buffer := make([]byte, BLOCK_SIZE)
+for {
+   length, err := r.Read(buffer)
+   if length == 0 {
+      break
+   }
+   if err != nil &amp;&amp; err != io.EOF {
+      // handle error here
+   }
+   b := buffer[:length]
+   // do something with b, which is now appropriately sliced
+   // but slicing it would not allocate another buffer, just
+   // a slice header. if we want to go one step further use:
+   //
+   // b := buffer
+   // if length != BLOCK_SIZE {
+   //     b = buffer[:length]
+   // }
+   //
+}
+</code></pre><link rel=stylesheet href=https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.8.3/katex.min.css><script src=https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.8.3/katex.min.js></script><script>!function(){function e(e){var t=e.match(a);return t?{TeX:t[1]||t[2],displayMode:!!t[1]}:null}for(var t=document.getElementsByTagName("code"),a=/(?:^\$\$\s*([\s\S]+)\s*\$\$$)|(?:^\$\s*([\s\S]+)\s*\$$)/,s=t.length;s--;){var n=t[s],r=e(n.textContent);r&&(katex.render(r.TeX,n,{displayMode:r.displayMode,throwOnError:!1}),n.classList.add("has-jax"))}}()</script>

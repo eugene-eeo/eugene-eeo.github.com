@@ -1,0 +1,96 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <link rel='stylesheet' href='styles/document.css'/>
+  <title>Intersection Algorithms</title>
+</head>
+<body>
+  <h1>Intersection Algorithms</h1>
+  <p>
+  Given two lists <b>[T]</b>, the following algorithm finds
+  the intersection (values common to both lists) in <b>O(min(m, n))</b>
+  time and <b>O(min(m,n))</b> space provided that:
+  <ul>
+    <li>The two lists are sorted.</li>
+    <li><b>T</b> is orderable and comparable.</li>
+    <li>Both lists do not contain repeat elements.</li>
+  </ul>
+  </p>
+  <pre>
+def intersection(A, B):
+    a = len(A)
+    s = 0
+    R = []
+    for n in B:
+        for i in range(s, a):
+            c = A[i]
+            if n &lt; c:
+                break
+            s += 1
+            if n == c:
+                R.append(n)
+                break
+        if s == a:
+            break
+    return R</pre>
+  <figcaption>Note that the return value also satisfies the three conditions.</figcaption>
+
+  <p>
+  Another algorithm for when intersections should be found
+  in place. This modifies <b>A</b>. Most of the ugliness
+  from the code stems from the fact that it is hard to
+  iterate backwards in Python. Again all conditions from
+  the first algorithm need to be satisfied. However:
+  <ul>
+    <li>Space complexity is essentially <b>O(1)</b></li>
+    <li>Time complexity is higher, at worse <b>O(max(n,m))</b>
+      due to the additional deletes.</li>
+  </ul>
+  </p>
+
+  <pre>
+def intersection(A, B):
+    b = len(B) - 1
+    a = len(A) - 1
+
+    # Find intersections, and set a to be the index
+    # where the algorithm should search from
+    for i in range(b, -1, -1):
+        n = B[i]
+        for j in range(a, -1, -1):
+            c = A[j]
+            if n &gt; c:
+                break
+            a -= 1
+            if n == c:
+                break
+            del A[j]
+
+    # everything below a is not included in the other
+    # set, so delete
+    for j in range(a, -1, -1):
+        del A[j]
+    return A</pre>
+  <p>
+  Both algorithms exploit the fact that the lists are
+  already sorted, and break from the inner loop early
+  to avoid a full scan whenever it makes sense to avoid
+  <b>O(mn)</b>. It is possible to use a binary search
+  instead of the linear scan to determine the index.
+
+  <p>
+  However, that would give a worse time complexity should
+  the lists have very tighly clustered values: linear
+  search is at worse, <b>O(n)</b> but <b>Ω(1)</b>. However
+  a binary search is almost always <b>O(log n)</b>. Case
+  in point:
+
+    <blockquote> 
+    Easy to find <b>1</b> in <b>[1,2,3,4,5,6,7,8]</b>
+    using linear search. However a binary search needs
+    ~3 steps.
+    </blockquote>
+</body>
+</html>

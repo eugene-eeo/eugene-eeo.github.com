@@ -1,0 +1,35 @@
+digraph ER {
+    node [shape=rectangle];
+    edge [shape=arrow];
+    {node [label=16] main};
+    {node [label=8] sub1};
+    {node [label=8] sub2};
+    {node [label=4] sub11};
+    {node [label=4] sub12};
+    {node [label=4] sub13};
+    {node [label=4] sub14};
+    {node [label=2] sub21};
+    {node [label=2] sub22};
+    {node [label=2] sub23};
+    {node [label=2] sub24};
+    {node [label=2] sub25};
+    {node [label=2] sub26};
+    {node [label=2] sub27};
+    {node [label=2] sub28};
+
+    // Edges
+    main -> sub1;
+    main -> sub2;
+    sub1 -> sub11;
+    sub1 -> sub12;
+    sub2 -> sub13;
+    sub2 -> sub14;
+    sub11 -> sub21;
+    sub11 -> sub22;
+    sub12 -> sub23;
+    sub12 -> sub24;
+    sub13 -> sub25;
+    sub13 -> sub26;
+    sub14 -> sub27;
+    sub14 -> sub28;
+}

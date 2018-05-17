@@ -1,0 +1,51 @@
+https://keybase.io/eeojun
+--------------------------------------------------------------------
+
+I hereby claim:
+
+  * I am an admin of https://eugene-eeo.github.io
+  * I am eeojun (https://keybase.io/eeojun) on keybase.
+  * I have a public key ASBPozL3c19DFS2saFNdiQbq_O3si2lcJRrnBGfbAFPgHQo
+
+To do so, I am signing this object:
+
+{
+    "body": {
+        "key": {
+            "eldest_kid": "01204fa332f7735f43152dac68535d8906eafcedec8b695c251ae70467db0053e01d0a",
+            "host": "keybase.io",
+            "kid": "01204fa332f7735f43152dac68535d8906eafcedec8b695c251ae70467db0053e01d0a",
+            "uid": "21bf4e6a02f30716c631509da0ce7119",
+            "username": "eeojun"
+        },
+        "service": {
+            "hostname": "eugene-eeo.github.io",
+            "protocol": "https:"
+        },
+        "type": "web_service_binding",
+        "version": 1
+    },
+    "client": {
+        "name": "keybase.io go client",
+        "version": "1.0.16"
+    },
+    "ctime": 1469847659,
+    "expire_in": 504576000,
+    "merkle_root": {
+        "ctime": 1469847634,
+        "hash": "bd16c8ef3216d43886e44d8a675ae50a453af2cda5a6d301e6beb9f6f05d7c4df005f0b4c61fadb6b9cf5ec6a850980ef20b547c7f936951a381b294452a176e",
+        "seqno": 549528
+    },
+    "prev": "a1d047abd95d8a6057d1f2e7704fdcd33ba0da624f803b8d8aec0155287b0663",
+    "seqno": 8,
+    "tag": "signature"
+}
+
+which yields the signature:
+
+hKRib2R5hqhkZXRhY2hlZMOpaGFzaF90eXBlCqNrZXnEIwEgT6My93NfQxUtrGhTXYkG6vzt7ItpXCUa5wRn2wBT4B0Kp3BheWxvYWTFAvp7ImJvZHkiOnsia2V5Ijp7ImVsZGVzdF9raWQiOiIwMTIwNGZhMzMyZjc3MzVmNDMxNTJkYWM2ODUzNWQ4OTA2ZWFmY2VkZWM4YjY5NWMyNTFhZTcwNDY3ZGIwMDUzZTAxZDBhIiwiaG9zdCI6ImtleWJhc2UuaW8iLCJraWQiOiIwMTIwNGZhMzMyZjc3MzVmNDMxNTJkYWM2ODUzNWQ4OTA2ZWFmY2VkZWM4YjY5NWMyNTFhZTcwNDY3ZGIwMDUzZTAxZDBhIiwidWlkIjoiMjFiZjRlNmEwMmYzMDcxNmM2MzE1MDlkYTBjZTcxMTkiLCJ1c2VybmFtZSI6ImVlb2p1biJ9LCJzZXJ2aWNlIjp7Imhvc3RuYW1lIjoiZXVnZW5lLWVlby5naXRodWIuaW8iLCJwcm90b2NvbCI6Imh0dHBzOiJ9LCJ0eXBlIjoid2ViX3NlcnZpY2VfYmluZGluZyIsInZlcnNpb24iOjF9LCJjbGllbnQiOnsibmFtZSI6ImtleWJhc2UuaW8gZ28gY2xpZW50IiwidmVyc2lvbiI6IjEuMC4xNiJ9LCJjdGltZSI6MTQ2OTg0NzY1OSwiZXhwaXJlX2luIjo1MDQ1NzYwMDAsIm1lcmtsZV9yb290Ijp7ImN0aW1lIjoxNDY5ODQ3NjM0LCJoYXNoIjoiYmQxNmM4ZWYzMjE2ZDQzODg2ZTQ0ZDhhNjc1YWU1MGE0NTNhZjJjZGE1YTZkMzAxZTZiZWI5ZjZmMDVkN2M0ZGYwMDVmMGI0YzYxZmFkYjZiOWNmNWVjNmE4NTA5ODBlZjIwYjU0N2M3ZjkzNjk1MWEzODFiMjk0NDUyYTE3NmUiLCJzZXFubyI6NTQ5NTI4fSwicHJldiI6ImExZDA0N2FiZDk1ZDhhNjA1N2QxZjJlNzcwNGZkY2QzM2JhMGRhNjI0ZjgwM2I4ZDhhZWMwMTU1Mjg3YjA2NjMiLCJzZXFubyI6OCwidGFnIjoic2lnbmF0dXJlIn2jc2lnxECCqnkBdxj5ntpfa9AWsRVrlhAxE+ITAmA3/rJkbaxxn5qUNvRkNmtINhop6hmBMmAY4Axqh19ZmzyebwlorPIOqHNpZ190eXBlIKRoYXNogqR0eXBlCKV2YWx1ZcQgN72pDX2aja4Ii9qLjpW54bn/YnxhdOwieYWAm+NDVQ6jdGFnzQICp3ZlcnNpb24B
+
+And finally, I am proving ownership of this host by posting or
+appending to this document.
+
+View my publicly-auditable identity here: https://keybase.io/eeojun
