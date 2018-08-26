@@ -1,0 +1,387 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset='utf8'/>
+  <meta name='viewport' content='width=device-width, initial-scale=1'/>
+  <link rel='stylesheet' href='styles/document.css'/>
+  <title>Notes on Geohashing</title>
+  <style>
+code, pre { font-family: 'Menlo', monospace; }
+.maps td  { text-align: center; }
+.map      { pointer-events: none; }
+  </style>
+</head>
+<body>
+  <h1>Notes on Geohashing</h1>
+  <p>
+    Geohashing is an excellent way to reduce one type of problem (proximity
+    search) to another, seemingly unrelated one (string prefix matching),
+    allowing databases to re-use their regular index datastructures on these
+    fancy new coordinates. It maps two pairs of numbers, usually denoted as
+    <code>(lat, lng)</code> to a string.
+
+  <p>
+    At it's heart, Geohashing is a clever observation on space filling.
+    Imagine if we were trying to split the following square into two pieces,
+    identified by unique bit strings. A natural way to do it is to split it
+    into halves<sup><a href='#4'>[4]</a></sup>:
+
+  <pre>
+┌─────────┐   ┌────┬────┐   ┌────┬────┐   ┌─────────┐
+│         │   │    │    │   │    │    │   │         │
+│         │   │    │    │   │ 00 │ 10 │   │         │
+│         │   │  0 │ 1  │   ├────┼────┤   │   ...   │
+│         │   │    │    │   │    │    │   │         │
+│         │   │    │    │   │ 01 │ 11 │   │         │
+└─────────┘   └────┴────┘   └────┴────┘   └─────────┘</pre>
+
+  <p>
+    We see that the divisions along the x- and y- axes are interleaved between
+    our bit string. That is, we can see some arbitrary string like <code>00111 01011 00000</code>
+    as a sequence of instructions we can follow:
+
+  <pre>
+0 0 1 1 1 0 1 ...
+x y x y x y x ...
+└─│─│─│─│────────────&gt; Left
+  └─│─│─│────────────&gt; Top
+    └─│─│────────────&gt; Right
+      └─│────────────&gt; Bottom
+        └─ ...</pre>
+
+  <p>
+    Now since these strings can be quite long, it is unwieldy to exchange
+    long strings of 0s and 1s. So we encode them using base32, starting from the
+    left, the <i>high bits</i> (we'll see why we use base32 later):
+
+  <pre>
+00111 01011 00000
+    7    11     0
+-------------------
+    7     c     0 =&gt; "7c0"</pre>
+
+  <p>
+    That's all there is to it, conceptually — a mapping from a unique string to
+    a quadrant of some unit grid. From these examples we can see the key property:
+    every quadrant that shares a common prefix are close together, e.g. <code>0000</code> and <code>0001</code>,
+    but not necessarily the other way round, e.g. <code>00</code> and <code>10</code>.
+
+  <h2>Algorithm</h2>
+  <p>
+    First we need to map the <code>(lat, lng)</code> coordinates to a pair of
+    32-bit integers. This is done by rescaling to <code>([0, 1], [0, 1])</code>
+    and then again to <code>([0, 2^32), [0, 2^32))</code>.
+
+  <pre>
+x &lt;- floor((lng - MIN_LNG) / (MAX_LNG - MIN_LNG) × (2^32-1))
+y &lt;- floor((lat - MIN_LAT) / (MAX_LAT - MIN_LAT) × (2^32-1))
+</pre>
+
+  <p>
+    Next we need to interleave the bits together, starting from the quantized
+    longitude. We'll denote the LSB of some 32-bit number <code>n</code> as
+    <code>n[0]</code> and the MSB as <code>n[31]</code>:
+
+  <pre>
+n &lt;- 2^63 × x[31]
+   + 2^62 × y[31]
+   + 2^61 × x[30]
+   + 2^60 × y[30]
+   + ...
+   +  2^3 × x[ 1]
+   +  2^2 × y[ 1]
+   +  2^1 × x[ 0]
+   +  2^0 × y[ 0]
+</pre>
+
+  <p>
+    If you use that implementation it'd be painfully slow, so you should
+    look somewhere else like Redis's <code>interleave64</code><sup><a href="#7">[7]</a><a href="#8">[8]</a></sup>
+    and use bit masks instead.
+
+  <p>
+    To get the string representation, we split the 64-bit integer up into
+    12 5-bit chunks, starting from the high bits, and we then map each chunk
+    to an integer based on the alphabet:
+
+  <pre>0123456789bcdefghjkmnpqrstuvwxyz</pre>
+  <figcaption>Maps 0 =&gt; 0, 1 =&gt; 1, ... 10 =&gt; b and so on.</figcaption>
+
+  <p>
+    <i>But 12 × 5 = 60</i>, you say. We ignore the last 4 bits, which is not
+    that bad since we're only dropping the last 2 bits from the quantized
+    latitude / longitude, so we won't end up halfway around the earth.
+
+  <p>
+    Most implementations only use up to 11 characters, which in practice is far
+    more than enough<sup><a href="#1">[1]</a></sup>.
+
+  <p>
+    I <i>think</i> the reason the algorithm uses base32 is because of the way
+    we interleave the bits of <code>x</code> and <code>y</code> – longitude
+    is <code>±180</code> while latitude is <code>±90</code>. So 5-bits at
+    once probably allows us to better filter values based on the first character:
+
+<pre>
+┌───────┬───────┬───────┬───────┬───────┐ ┌───────┬─────
+│ x[31] │ y[31] │ x[30] │ y[30] │ x[29] │ │ y[29] │ ...
+└───────┴───────┴───────┴───────┴───────┘ └───────┴─────
+</pre>
+
+  <p>
+    since we're using 3 high bits of <code>x</code> and 2 high bits of <code>y</code>.
+    The nice thing about this string representation is that it allows us to
+    re-use familiar datastructures like <a href="https://en.wikipedia.org/wiki/Trie">Tries</a>,
+    <a href="https://en.wikipedia.org/wiki/Radix_tree">Radix Tries</a>, etc.
+    to let us do fast...
+
+  <h2>Proximity Searching: Take 1</h2>
+
+  <p>
+    One nice property of a geohash, for example <code>tuvz4p0f7</code> (Mount
+    Everest) is that by construction we can strip more and more characters from
+    the end to become less and less precise:
+
+  <table class='maps'>
+    <tr>
+      <td><iframe class='map' width="243" height="200" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://www.openstreetmap.org/export/embed.html?bbox=86.88091278076172%2C27.96218672632588%2C86.96931838989259%2C28.014028699014812&amp;layer=mapnik" style="border: 1px solid black"></iframe><br/><code>tuvz4p0f7</code></td>
+      <td><iframe class='map' width="243" height="200" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://www.openstreetmap.org/export/embed.html?bbox=86.84503555297853%2C27.964081974101454%2C86.95489883422852%2C28.015923035638266&amp;layer=mapnik" style="border: 1px solid black"></iframe><br/><code>tuvz4p</code></td>
+    </tr>
+    <tr>
+      <td><iframe class='map' width="243" height="200" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://www.openstreetmap.org/export/embed.html?bbox=86.94502830505373%2C27.974088330520058%2C87.05489158630373%2C28.02592458049937&amp;layer=mapnik" style="border: 1px solid black"></iframe><br/><code>tuvz</code></td>
+      <td><iframe class='map' width="243" height="200" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" src="https://www.openstreetmap.org/export/embed.html?bbox=83.94507408142091%2C24.97337631844893%2C84.05493736267091%2C25.026584014885913&amp;layer=mapnik" style="border: 1px solid black"></iframe><br/><code>tu</code></td>
+    </tr>
+  </table>
+
+  <p>
+    There is a table<sup><a href='#1'>[1]</a></sup> that shows how the precision degrades.
+
+  <p>
+    Say we want to do these kinds of queries: <i>Show me a list of points that
+    are a certain distance (x) away from some point (p)</i>. A first (and a good) start
+    would be to:
+
+  <ol>
+    <li>Determine the amount of precision we need (no of characters) to make this search.
+        Strip excess characters from the geohash of p, and call this <code>p'</code>.</li>
+    <li>Find a list of geohashes prefixed with <code>p'</code>.</li>
+    <li>Convert said geohashes to coordinates and return those which are ≤ x away.</li>
+  </ol>
+
+  <p>
+    However this breaks down when proximity searches are done near the Greenwich
+    Meridian or the equator, because in those points the MSB of <code>x</code> and
+    <code>y</code> will be 0 or 1, so their geohashes won't share a common prefix.
+    This brings us to:
+
+  <h2>Neighbours</h2>
+
+  <p>
+    This approach is used in Elasticsearch<sup><a href='#2'>[2]</a></sup>, Redis<sup><a href='#3'>[3]</a></sup> and
+    Solr: what if instead of performing a query on
+    just the square, we did a query on the square's 8 adjacent neighbours as well? This
+    would help work around the problem:
+
+  <pre>
+      ┌---------------- GREENWICH MERIDIAN
+ 0_...↓ 0_...  1_...
+      │   │
+  ┌───┼───┼───┐
+  │ 7 │ 0 │ 1 │   _0...
+──┼───┼───┼───┼──
+  │ 6 │ x │ 2 │   _0...
+──┼───┼───┼───┼── &lt;--------- EQUATOR
+  │ 5 │ 4 │ 3 │   _1...
+  └───┼───┼───┘
+      │   │
+</pre>
+
+  <p>
+    But first we need a way to get the bounding box of a coordinate. This is simple;
+    decode the hash and then follow the bits like how you'd follow the breadcrumbs of
+    a binary search. Keep in mind that even bits are for latitude and odd are for longitude:
+
+  <pre>
+bbox(geohash):
+    n &lt;- b32_to_uint64(geohash)
+
+    min_x &lt;- MIN_LNG
+    max_x &lt;- MAX_LNG
+    min_y &lt;- MIN_LAT
+    max_y &lt;- MAX_LAT
+
+    for i : 63 to 0:
+        if i mod 2 = 1: # odd bit
+            if n[i] = 1: min_x &lt;- (min_x + max_x) / 2
+                   else: max_x &lt;- (min_x + max_x) / 2
+        else:
+            if n[i] = 1: min_y &lt;- (min_y + max_y) / 2
+                   else: max_y &lt;- (min_y + max_y) / 2
+
+    return [min_x, min_y], [max_x, max_y]
+</pre>
+
+  <p>
+    A straightforward algorithm to get the neighbours of a geohash <code>p</code>,
+    given the previous algorithm is the following:
+
+  <pre>
+neighbour(p, dx, dy):
+    [min_x, min_y], [max_x, max_y] &lt;- bbox(p)
+
+    lng &lt;- (max_x + min_x) / 2 + (dx × (max_x - min_x))
+    lat &lt;- (max_y + min_y) / 2 + (dy × (max_y - min_y))
+
+    return to_geohash(lat, lng)
+</pre>
+
+  <p>
+    Redis's <a href='https://github.com/antirez/redis/blob/fc0c9c8097a5b2bc8728bec9cfee26817a702f09/src/geohash.c#L224'><code>geohash_move_x</code></a>
+    is far smarter and faster than our 'first principles' algorithm. Regardless,
+    computing the neighbour in all 8 directions for Mount Everest gives us:
+
+  <pre>
+┌───────────┬───────────┬───────────┐
+│           │           │           │
+│ tuvz4p0fd │ tuvz4p0fe │ tuvz4p0fs │
+│           │           │           │
+├───────────┼───────────┼───────────┤
+│           │           │           │
+│ tuvz4p0f6 │           │ tuvz4p0fk │
+│           │           │           │
+├───────────┼───────────┼───────────┤
+│           │           │           │
+│ tuvz4p0f4 │ tuvz4p0f5 │ tuvz4p0fh │
+│           │           │           │
+└───────────┴───────────┴───────────┘</pre>
+
+  <p>
+    Of course when actually implementing the neighbours function, you may run into
+    cases where some neighbour boxes are beyond the edges of the Earth (so to speak);
+    you'll have to remove those.
+
+  <h2>Proximity Searching: Take 2</h2>
+
+  <p>
+    Now that we know about the edge cases and how to overcome them, let's
+    revise the search algorithm:
+
+  <ol>
+    <li>Determine the amount of precision we need (no of characters) to make this search.
+        Strip excess characters from the geohash of p, and call this the <code>p'</code>.</li>
+    <li>Compute the neighbours of <code>p'</code>.</li>
+    <li>Find a list of geohashes that are prefixed by any of the prefixes.</li>
+    <li>Convert said geohashes to coordinates and return those which are ≤ x away.</li>
+  </ol>
+
+  <p>
+    All that remains is the very first step we need to make, which is determining the
+    'zoom level' where we will make our queries. On a side note, 'local' searches are
+    faster than 'global' ones, because requiring a longer prefix filters out more coordinates.
+
+  <p>
+    The following observation makes for a good start: if we reduce the
+    number of least-significant bits by 2, we essentially double the search
+    range (in x- and y-), because we're discarding one bit of information
+    from the quantized <code>lng</code> and <code>lat</code>, e.g.:
+
+  <pre>
+┌────┬────┐ | ┌─────────┐
+│    │    │ | │         │
+│1000│1010│ | │         │
+├────┼────┤ | │   10    │
+│    │    │ | │         │
+│1001│1011│ | │         │
+└────┴────┘ | └─────────┘
+</pre>
+
+  <p>
+    So with that in mind we can do:
+
+  <pre>
+estimateLengthRequired(r):
+    if r = 0:
+        # could be 12, or 11. Whichever precision which all
+        # your geohashes are stored in.
+        return MAX_LENGTH
+
+    p &lt;- 0
+    while (r &lt; MERCATOR_MAX):
+        r &lt;- r × 2
+        p &lt;- p + 2
+    l &lt;- p / 5
+    if l &lt; 1:          l = 1
+    if l &gt; MAX_LENGTH: l = MAX_LENGTH
+    return l
+</pre>
+
+  <p>
+    Where <code>r</code> is given in metres, and <code>MERCATOR_MAX</code>
+    is the 'width' in metres of a mercator projection of the Earth.
+
+  <p>
+    But of course there's <a href="https://en.wikipedia.org/wiki/Geohash#Non-linearity">more edge cases</a>
+    that need to be considered. For instance, the mercator projection becomes
+    progressively wrong as we get closer to the poles<sup><a href="#5">[5]</a><a href="#6">[6]</a></sup>.
+    So past a certain latitude the approximation breaks down and we have to
+    subtract from <code>p</code>. However for the most part it matches up with
+    the rough error estimates given in the table<sup><a href='#1'>[1]</a></sup>.
+
+  <h2>Proximity Search: Take 1.5</h2>
+  <p>
+    There is an alternative to this neighbour madness. The idea is to compute the
+    bounding box of the query, and then return all prefixes of some length within
+    this box.
+
+  <pre>
+┌────┬────┬────┐
+│min │... │... │
+├────┼────┼────┤
+│... │... │... │
+├────┼────┼────┤
+│... │... │max │
+└────┴────┴────┘</pre>
+
+  <p>
+    This approach still requires an estimate of the length of prefix you require,
+    but isn't commonly used. I suspect it's due to the high cost of computing the
+    list of prefixes within said box.
+
+  <footer>
+    <p>
+    <a name='1'></a>
+    <b>[1]:</b> Included is a table that shows how the precision increases as more and
+    more characters are used: <a href="http://www.movable-type.co.uk/scripts/geohash.html">http://www.movable-type.co.uk/scripts/geohash.html</a>
+
+    <p>
+    <a name='2'></a>
+    <b>[2]:</b> <a href="https://www.elastic.co/guide/en/elasticsearch/guide/current/geohash-cell-query.html#geohash-cell-query">Geohash Cell Query (Elasticsearch: The Definitive Guide [2.x])</a>
+
+    <p>
+    <a name='3'></a>
+    <b>[3]:</b> <a href="https://matt.sh/redis-geo">Redis Commands: Geography Edition</a>
+
+    <p>
+    <a name='4'></a>
+    <b>[4]:</b> The 'canonical' way we encode it is known as the <a href="https://en.wikipedia.org/wiki/Z-order_curve">Z-order</a>.
+    There are other space filling curves as well; one implementation of Geohashing
+    uses the more complicated <a href="https://brage.bibsys.no/xmlui/bitstream/handle/11250/2404058/14938_FULLTEXT.pdf?sequence=1">Hilbert curve</a>.
+
+    <p>
+    <a name='5'></a>
+    <b>[5]:</b> Redis: <a href="https://github.com/antirez/redis/blob/fc0c9c8097a5b2bc8728bec9cfee26817a702f09/src/geohash_helper.c#L62"><code>geohashEstimateStepsByRadius</code></a>
+
+    <p>
+    <a name='6'></a>
+    <b>[6]:</b> <a href="https://www.geolounge.com/tissots-indicatrix-measuring-distortion-map-projections/">Tissot’s Indicatrix: Measuring Distortion in Map Projections (Elizabeth Borneman, GeoLounge)</a>
+
+    <p>
+    <a name='7'></a>
+    <b>[7]:</b> <a href="https://graphics.stanford.edu/~seander/bithacks.html#InterleaveBMN">Interleave bits by Binary Magic Numbers (Bit Twiddling Hacks)</a>
+
+    <p>
+    <a name='8'></a>
+    <b>[8]:</b> <a href="https://github.com/antirez/redis/blob/fc0c9c8097a5b2bc8728bec9cfee26817a702f09/src/geohash.c#L52"><code>interleave64</code></a>
+  </footer>
+</body>
+</html>
