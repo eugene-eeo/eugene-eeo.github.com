@@ -347,6 +347,101 @@ estimateLengthRequired(r):
     but isn't commonly used. I suspect it's due to the high cost of computing the
     list of prefixes within said box.
 
+  <h2>Neighbour finding 2.0</h2>
+  <p>
+    The Javascript implementation<sup><a href="#1">[1]</a></sup>, which is based on
+    another Javascript implementation<sup><a href="#9">[9]</a></sup> uses
+    the following code to find the neighbour of a given geohash (annotated with
+    safety checks removed for brevity):
+
+  <pre>
+Geohash.adjacent = function(geohash, direction) {
+    var neighbour = {
+        n: [ 'p0r21436x8zb9dcf5h7kjnmqesgutwvy', 'bc01fg45238967deuvhjyznpkmstqrwx' ],
+        s: [ '14365h7k9dcfesgujnmqp0r2twvyx8zb', '238967debc01fg45kmstqrwxuvhjyznp' ],
+        e: [ 'bc01fg45238967deuvhjyznpkmstqrwx', 'p0r21436x8zb9dcf5h7kjnmqesgutwvy' ],
+        w: [ '238967debc01fg45kmstqrwxuvhjyznp', '14365h7k9dcfesgujnmqp0r2twvyx8zb' ],
+    };
+    var border = {
+        n: [ 'prxz',     'bcfguvyz' ],
+        s: [ '028b',     '0145hjnp' ],
+        e: [ 'bcfguvyz', 'prxz'     ],
+        w: [ '0145hjnp', '028b'     ],
+    };
+
+    var lastCh = geohash.slice(-1);    // last character of hash
+    var parent = geohash.slice(0, -1); // hash without last character
+
+    var type = geohash.length % 2; // 1 =&gt; odd, so last bit is longitude. 0 =&gt; last bit is latitude.
+
+    // check for edge-cases which don't share common prefix
+    if (border[direction][type].indexOf(lastCh) != -1 &amp;&amp; parent !== '') {
+        parent = Geohash.adjacent(parent, direction);
+    }
+
+    // append letter for direction to parent
+    return parent + Geohash.base32.charAt(neighbour[direction][type].indexOf(lastCh));
+};
+</pre>
+
+  <p>
+    Which is essentially a lookup table. On a side note, the <code>border</code>
+    object highlights a fact pointed out in the Solr docs:
+
+  <blockquote>Also, you probably don’t want to use a geohash based grid because the cell orientation between grid levels flip-flops between being square and rectangle.</blockquote>
+
+  <p>
+    At it's heart it's just a simple string lookup based on this image:
+  </p>
+
+  <img src="https://i.stack.imgur.com/Nkp8B.jpg" width="100%"/>
+
+  <p>
+    Note that this image is for a length-1 geohash, so let's see how it relates
+    to the lookup tables; If we look at the second entry of every array in the
+    <code>neighbour</code> object we notice:
+
+  <pre>
+   ┌─┐             |     ┌───┐     |
+ N │b│c01fg4523... |     │ 2 │     | North of b is 0
+ S │2│38967debc... | ┌───┼───┼───┐ | South of 2 is 0
+ E │p│0r21436x8... | │ p │ 0 │ 1 │ | East  of p is 0
+ W │1│4365h7k9d... | └───┼───┼───┘ | West  of 1 is 0
+   └─┘             |     │ b │     |
+    ^              |     └───┘     |
+</pre>
+
+  <p>
+    You can verify for yourself that this is the case across all 23 characters.
+    When we are in any even lengthed geohash, the NS and EW directions are effectively
+    switched because the first bit is now latitude and not longitude, so we simply
+    switch north with east and south with west.
+
+  <pre>
+var neighbour = {
+    n: [ 'p0r214...',  ┌── 'bc01fg...' ],
+    s: [ '14365h...',  │┌─ '238967...' ],
+    e: [ 'bc01fg...', ─┘│  'p0r214...' ],
+    w: [ '238967...', ──┘  '14365h...' ],
+};
+</pre>
+
+  <p>
+    What's interesting about this code is the recursive part. If we just use a lookup
+    table without considering the places where the cell ends, then for the north of
+    <code>bbb</code>, we get <code>bb0</code> which is wrong.
+
+  <p>
+    Instead we keep track of these cell boundaries using the <code>border</code>
+    object. Again considering the case of odd lengthed geohashes, we see that the
+    cells at the edge of the earth are in the <code>borders</code> object.
+
+  <p>
+    The recursive part is this – if the last cell is one of the boundary cells, we're
+    going to find the neighbour of the parent cell instead (and if <i>that</i> cell is
+    a boundary cell, ...), and then zoom in to the correct cell. For our case, we perform
+    2 backtracks and end up at <code>000</code>, which is correct.
+
   <footer>
     <p>
     <a name='1'></a>
@@ -382,6 +477,10 @@ estimateLengthRequired(r):
     <p>
     <a name='8'></a>
     <b>[8]:</b> <a href="https://github.com/antirez/redis/blob/fc0c9c8097a5b2bc8728bec9cfee26817a702f09/src/geohash.c#L52"><code>interleave64</code></a>
+
+    <p>
+    <a name='9'></a>
+    <b>[9]:</b> <a href="https://github.com/davetroy/geohash-js">Geohash Javascript Demonstration</a>
   </footer>
 </body>
 </html>
