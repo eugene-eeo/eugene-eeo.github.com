@@ -1,0 +1,133 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset='utf8'/>
+  <meta name='viewport' content='width=device-width, initial-scale=1'/>
+  <link rel='stylesheet' href='styles/document.css'/>
+  <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.8.3/katex.min.css'/>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.8.3/katex.min.js'></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.8.3/contrib/auto-render.min.js'></script>
+  <title>Randomized Quick-Select</title>
+  <style>
+  </style>
+</head>
+<body>
+  <h1>Randomized Quick-Select</h1>
+  <p>
+    The <i>Selection Problem</i> is the following: given a finite series of numbers, \(A\)
+    of size \(n\), find the \( i \)-th smallest element. One straightforward way to do it
+    is to use a comparison-based sorting algorithm on \(A\), and then return the \(i\)-th
+    element from the sorted sequence. This is \( \Omega(n \log n) \).
+
+  <p>
+    Another way of solving this is by repeatedly partitioning \(A\) around some element:
+
+  <pre>
+quickselect(A, i)
+    n := len(A)
+    k := n / 2
+    j := partition(A, k)
+    if i &lt; j:
+        return quickselect(A[1..j-1], i)
+    if i &gt; j:
+        return quickselect(A[j+1..n], i - j)
+    # i = j
+    return A[j]
+</pre>
+
+  <p>
+    The worst case time-complexity of quickselect is \( \Theta(n^2) \). To see why,
+    we can define the worst case time-complexity of quickselect as:
+
+    $$
+    \begin{aligned}
+    T(n) &amp;= \max_{k=1..n-1} \{T(k)\} + \alpha n \\
+         &amp;= T(n-1) + \alpha n \\
+         &amp;= T(n-2) + \alpha n + \alpha (n - 1) \\
+         &amp;\ldots \\
+         &amp;= \alpha \sum_{i=1}^{n}{i} = \Theta(n^2)
+    \end{aligned}
+    $$
+
+  <p>
+    Intuitively we see why \(T(n-1)\) is the worst; we have to recurse on \( n - 1 \)
+    elements. Then this is no better than sorting the whole thing with bubblesort.
+
+  <p>
+    Notice that we can do better by picking smart values for \( k \) at each round.
+    Ideally we want to pick the median each time so that no matter which side we need
+    to recurse into, we only deal with half of the original input.
+
+  <p>
+    There is the usual <a href='https://en.wikipedia.org/wiki/Median_of_medians'>Median of Medians</a>
+    algorithm that you can fall back to, and it can be shown that using this pivot
+    selection strategy makes quickselect run in \( O(n) \).
+
+  <p>
+    But we're lazy so let's throw some coins and hope that we get something good,
+    at least most of the time. Randomization is another thing we can use:
+
+  <pre>
+random_select(A, i)
+    ...
+    k := random number between 1 and n
+    ...
+</pre>
+<figcaption>Note that k can take any value between 1 and n, inclusive.</figcaption>
+
+  <p>
+    <b>We first show that the random variant is almost <i>never</i> \( O(n^2) \).</b>
+    Recall that to make the algorithm \( O(n^2) \), we have to recurse into sides
+    which have only 1 less element than before.
+
+  <p>
+    The probability of picking such an element at each round is \( 1/m \), where \( m \)
+    is the size of the current input. (Assuming that all \(m\) numbers are unique.) This
+    means that the probability that we keep picking "bad" elements is:
+
+    $$
+    \frac{1}{n} \frac{1}{n-1} \frac{1}{n-2} \ldots 1 = \prod_{i=0}^{n-1}{\frac{1}{n-i}} = \frac{1}{n!}
+    $$
+
+  <p>
+    So with probability \( 1 / n! \) do we actually get the dreaded \( O(n^2) \); it's
+    worth nothing that this probability decreases very very quickly with \( n \) as well.
+
+  <p>
+    <b>Now we claim that on average, it is \(O(n)\).</b> <i>Caveat: The proof may be subtly wrong since I came up with it
+    myself.</i> We need to first answer this question: on average, what are the number of
+    elements on the high-side? (You can repeat the analysis for the low-side; it is
+    symmetric.)
+
+  <p>
+    Well if we pick a lucky element with probability \( 1 / n \) we get 0 elements on the high side.
+    Again, if we pick another lucky element we get 1 element on the high side.
+    So on and so forth, until we pick an unlucky element and get \(n - 1\) elements
+    on the high side.
+
+  <p>
+    The probability of getting however many elements on the high side is \( 1 / n \).
+    So we get (\(X\) = no. of elements on high side):
+
+    $$
+    E(X) = \sum_{i=0}^{n-1}{\frac{i}{n}} = \frac{n(n-1)/2}{n} = \frac{n-1}{2} \lt \frac{n}{2}
+    $$
+
+  <p>
+    Now we can plug this into the time complexity of <code>random_select</code>.
+    Since we're only considering the average case, we can just write:
+
+    $$
+    \begin{aligned}
+    T(n) &amp;= T(n/2) + \Theta(n) \\
+         &amp;= \Theta(n) + \Theta(n/2) + \Theta(n/4) + \ldots + \Theta(1) \\
+         &amp;\lt \Theta(\sum_{i=0}^{\infty}{\frac{n}{2^i}}) = \Theta(n)
+    \end{aligned}
+    $$
+
+  <p>
+    Which completes the proof. \( \square \)
+
+  <script>renderMathInElement(document.body);</script>
+</body>
+</html>
