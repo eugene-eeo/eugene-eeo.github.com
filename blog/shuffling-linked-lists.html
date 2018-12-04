@@ -1,0 +1,215 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset='utf8'/>
+  <meta name='viewport' content='width=device-width, initial-scale=1'/>
+  <link rel='stylesheet' href='styles/document.css'/>
+  <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.8.3/katex.min.css'/>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.8.3/katex.min.js'></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.8.3/contrib/auto-render.min.js'></script>
+  <title>Shuffling Linked Lists</title>
+  <style>
+  </style>
+</head>
+<body>
+  <h1>Shuffling Linked Lists</h1>
+  <p>
+    The algorithm for shuffling an array is well known. It can be done in
+    \( O(n) \) time because an array offers random access in \( O(1) \).
+
+  <pre>
+shuffle(xs):
+  for i = 1 up to n:
+      j = random int [1, i]
+      xs[i], xs[j] = xs[j], xs[i]
+</pre>
+
+  <p>
+    However shuffling a Linked List is not that straightforward. Depending
+    on what we are allowed, e.g. space or time we can do either of the
+    following:
+
+  <div class='row'>
+    <div class='col-1-2'>
+No space constraints:
+<pre>
+shuffle-notime(l):
+  copy contents of l to array xs
+  shuffle(xs)
+  curr = l.head
+  for x in xs:
+      curr.data = x
+      curr = curr.next
+</pre>
+    </div>
+    <div class='col-1-2'>
+No time constraints:
+<pre>
+shuffle-nospace(l):
+  curr = l.head
+  for i = 1 up to n:
+      j = random int [1, i]
+      find j-th element in l
+      curr = curr.next
+</pre>
+    </div>
+  </div>
+
+  <p>
+  Both of these are not ideal - the first one runs in \( \Theta(n) \) time
+  but uses the same amount of space. The second one uses constant space,
+  but takes \( \Theta(n^2) \) time. Let's try to do better than the second
+  algorithm. We want to shuffle the linked list in less than \( \Theta(n^2) \)
+  time, and also use constant space.
+
+  <p>
+  Consider the following algorithm, QuickShuffle:
+
+  <pre>
+quickshuffle(l, n):
+  if n == 1: return l
+  partition l into 2 equally sized chunks, L, R.
+  quickshuffle(L, n/2)
+  quickshuffle(R, n/2)
+  if random() &lt; 0.5:
+      return L o R
+  else:
+      return R o L
+</pre>
+
+  <p>
+  Where <code>X o Y</code> means concatenating chunk <code>X</code> with
+  chunk <code>Y</code>. When we partition the linked list into two chunks,
+  it is similar to slicing an array in Go - a chunk is just a head and tail
+  node. That way, we can join them back in \( O(1) \) time.
+
+  <p>
+  A diagram of how this runs:
+
+  <pre>
+ ┌───┬───┬───┬───┐
+ │ 1 │ 2 │ 3 │ 4 │
+ └───┴───┴───┴───┘
+   └─┬─┘   └──┬┘      split
+┌───┬───┐  ┌───┬───┐
+│ 1 │ 2 │  │ 3 │ 4 │
+└───┴───┘  └───┴───┘
+  │   │      │   │    split
+┌───┐┌───┐ ┌───┐┌───┐
+│ 1 ││ 2 │ │ 3 ││ 4 │
+└───┘└───┘ └───┘└───┘
+  └─┬──┘     └─┬──┘   collect and shuffle
+┌───┬───┐  ┌───┬───┐
+│ 2 │ 1 │  │ 3 │ 4 │
+└───┴───┘  └───┴───┘
+    └────┬─────┘      collect and shuffle
+ ┌───┬───┬───┬───┐
+ │ 3 │ 4 │ 2 │ 1 │
+ └───┴───┴───┴───┘
+</pre>
+
+  <p>
+  There is a nice property with <code>QuickShuffle</code>. Pick any
+  element \( x \), and the probability that \( x \) will be in any position
+  \( i \) can be calculated as follows. Let's say \( i \geq n / 2 \). Then
+  the probability of \( x \) being in the right chunk is \( 1/2 \). Again
+  suppose that \( n / 2 \leq i \leq 3n/4 \). The probability of \( x \)
+  being in that chunk is \( 1/2^2 \). This goes on for \( \log_2{n} \) steps
+  until we have \( 1 / 2^{\log_2{n}} = 1 / n \).
+
+  <p>
+  So we have that property, which is nice. Now the only problem remaining is
+  if an element is with another element in a size-2 chunk (e.g. 1,2 and 3,4),
+  then it will <i>always</i> be next to that element even after the shuffling
+  has completed. This means that some permutations, e.g. [3,1,4,2] are impossible.
+
+  <p>
+  Picking a larger number of partitions wouldn't help here - in general if we
+  pick a partition size of \( k \) then we would have the same problems but
+  just in a size-\( k \) chunk.
+
+  <blockquote>
+    <p>
+      <i>Side note:</i> we can avoid this problem if we interleave the linked
+      list with dummy nodes (i.e. place a dummy node next to every real node).
+      However this takes \( \Theta(n) \) space and we might as well just use
+      the <code>shuffle-notime</code> algorithm.
+  </blockquote>
+
+  <p>
+  To try to counteract this problem we can consider another shuffling algorithm.
+  Let's call this Interleave:
+
+  <pre>
+interleave(L, R):
+  l_p = L.head
+  r_p = R.head
+  p = L.head.prev
+  while r_p != R.tail and l_p != L.tail:
+      if random() &lt; 0.5: p.next = r_p; r_p = r_p.next
+      else:              p.next = l_p; l_p = l_p.next
+      p = p.next
+  merge remainders of L or R into p</pre>
+
+  <p>
+  For doubly linked lists, the code can be adapted to take into account the
+  <code>prev</code> pointer. What <code>interleave</code> does is the following:
+  given 2 chunks L and R, we randomly pick a node from L or R and then put that
+  in the result, until either chunk is empty.
+
+<pre>
+           ┌───┬───┐  ┌───┬───┐
+Interleave(│ 1 │ 2 │, │ 3 │ 4 │)
+           └───┴───┘  └───┴───┘
+                    |
+            ┌───┬───┬───┬───┐
+            │ 1 │ 3 │ 4 │ 2 │
+            └───┴───┴───┴───┘
+</pre>
+
+  <p>
+  There are two fundamental problems with this algorithm. For instance, we know
+  that 2 can <i>never</i> be in position 1, and the same for 4. So it is not a
+  true shuffle. Also we can see that the output is biased towards simply
+  rearranging the chunks. For an input of [a,b], [c,d] the probabilities are:
+
+  <center>
+  <table>
+    <tr><td><code>[a,b,c,d]</code></td><td>\( 1/4 \)</td></tr>
+    <tr><td><code>[a,c,b,d]</code></td><td>\( 1/8 \)</td></tr>
+    <tr><td><code>[a,c,d,b]</code></td><td>\( 1/8 \)</td></tr>
+    <tr><td><code>[c,d,a,b]</code></td><td>\( 1/4 \)</td></tr>
+    <tr><td><code>[c,a,d,b]</code></td><td>\( 1/8 \)</td></tr>
+    <tr><td><code>[c,a,b,d]</code></td><td>\( 1/8 \)</td></tr>
+  </table>
+  </center>
+
+  <p>
+  In general if we have two chunks of size \( k \) then the algorithm is more
+  biased towards just rearranging the two chunks (since rearranging chunks is
+  done with probability \( 2 * 1/2^k = 1/2^{k-1} \)), while interleaving \( i \)
+  elements is done with probability \( {k \choose i} 1/2^{k+i} \lt 1/2^k \).
+
+  <p>
+  So we know that 50% of the time we are just rearranging the two chunks, the
+  other 50% we actually do (some) interleaving. This is true for larger chunk
+  sizes as well. With that in mind, let's combine the two algorithms:
+
+  <pre>
+quickshuffle2(l, n):
+  if n == 1: return l
+  partition l into 2 equally sized chunks, L, R.
+  quickshuffle(L, n/2)
+  quickshuffle(R, n/2)
+  interleave(L, R)
+</pre>
+
+  <p>
+  For the base case, <code>interleave</code> works fine because there is a
+  50% chance of selecting the left chunk and 50% the right chunk. However
+  for larger sizes (even a list of length 4), the algorithm breaks down and
+  we don't get a perfect shuffle because of the bias in <code>interleave</code>.
+
+  <script>renderMathInElement(document.body);</script>
+</body>
+</html>
