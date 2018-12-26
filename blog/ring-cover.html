@@ -1,0 +1,260 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset='utf8'/>
+  <meta name='viewport' content='width=device-width, initial-scale=1'/>
+  <link rel='stylesheet' href='styles/document.css'/>
+  <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css'/>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.js'></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/contrib/auto-render.min.js'></script>
+  <title>Ring Cover</title>
+  <style>
+table {
+  text-align: center;
+  border: 1px solid #000;
+}
+td {
+  border: 1px solid #000;
+  padding: 0.25em 0.5em;
+}
+  </style>
+</head>
+<body>
+  <h1>Ring Cover</h1>
+  <p>
+    Say we place 5 items in a circle. If we count in 1s, i.e. the
+    1st item, then the 2nd, then the 3rd then we will count all
+    items by the end of 5 counts. What if instead we counted by 2?
+    This is now a bit trickier. Let's call the first item the 0th
+    item. Then our count sequence would be like this:
+
+    $$
+    0, 2, 4, 1, 3
+    $$
+
+  <p>
+    So we still <i>cover</i> the ring of all 5 items. Notice that
+    because we're counting in a ring we could ignore all items that
+    are above 5; so these two count sequences are in some sense,
+    the same:
+
+    <center>
+    <table>
+      <tr>
+        <td>0</td>
+        <td>2</td>
+        <td>4</td>
+        <td>6</td>
+        <td>8</td>
+      </tr>
+      <tr>
+        <td><b>0</b></td>
+        <td><b>2</b></td>
+        <td><b>4</b></td>
+        <td>5 + <b>1</b></td>
+        <td>5 + <b>3</b></td>
+      </tr>
+    </table>
+    </center>
+
+  <p>
+    This idea is cleanly encoded in the modulus operator:
+    \( 8 \equiv 3 \pmod 5 \) and in general, \(p \equiv r \pmod q\)
+    iff \( p = aq + r \).
+
+  <p>
+    Now comes the general question: given \( n \) objects in a ring,
+    can we cover the ring if we count by \( a \) each time? Let
+    \( F(n, a) \) denote whether we can cover the ring of \( n \)
+    objects counting by \( a \).
+
+  <center>
+  <img src="static/ring-cover.png" width="40%"/>
+  <figcaption>Ring with \( n = 5 \), \( a = 2 \).</figcaption>
+  </center>
+
+  <p>
+    Let's get some obvious cases out of the way:
+
+    <ul>
+      <li>\( a = 0 \) never covers any \( n \). I don't really want to prove this.</li>
+      <li>\( a = 1 \) always covers any \( n \).</li>
+      <li>If \( n \) is a multiple of \( a \), i.e. \( a \mid n \) then \( a \) doesn't cover \( n \).</li>
+    </ul>
+
+  <p>
+    Now we ask the following: if we count using a prime number,
+    do we cover all values of \( n \), assuming that \( a \) does
+    not divide \( n \)? Well this <i>should</i> be true; it does
+    hold for simple examples like \( n = 5, a = 2,3 \).
+
+  <blockquote>
+    <b>Claim:</b> if \( a \) is a prime and \( a \nmid n \) then \( a \) covers \( n \).<br/>
+    <b>Proof:</b> Consider the count sequence (all taken mod \( n \)):
+
+        $$
+        0, a, 2a, 3a, \ldots (n-1)a
+        $$
+
+      <p>
+        Our claim of coverage is equivalent to saying that there are no two elements that repeat
+        themselves in this sequence. Now assume the contrary; that this sequence does contain
+        some duplicate. So we say there <i>is</i> some \( i \neq j \), \( ia \equiv ja \pmod n \),
+        and that both \( ia \) and \( ja \) are \( \leq (n-1)a \). If that's the case we can
+        rewrite them as:
+
+        $$
+        \begin{aligned}
+        ia &amp;\equiv pn + r \\
+        ja &amp;\equiv qn + r
+        \end{aligned}
+        $$
+
+        Now assume, that \( i \lt j \). It follows that \( p \lt q \). This is the same as
+        saying that for some \( b \gt 0 \), \( q = p + b \):
+
+        $$
+        \begin{aligned}
+        ja &amp;\equiv (p + b)n + r \\
+           &amp;\equiv pn + bn + r \\
+           &amp;\equiv ia + bn \geq ia + n
+        \end{aligned}
+        $$
+
+        So \( ja \) is not in the (finite) count sequence! Thus we have a contradiction, and we
+        find that the prime \( a \) <i>does</i> indeed cover \( n \) but only if \( a \) is
+        not a multiple of \( n \).
+    </blockquote>
+
+  <p>
+    We then can ease our lives with this observation - if say \( n = 5 \)
+    and \( a = 4 \), then our count sequence is:
+
+    $$
+    0, 4, 3, 2, 1
+    $$
+
+    But this is the same as the count sequence for 1: \( 0, 1, 2, 3, 4 \)
+    but reversed around 0. Intuitively this makes sense - since we're adding
+    in a ring of \( n \) elements it shouldn't matter if we count from \( n - b \)
+    or \( b \). Let's prove it:
+
+    <blockquote>
+      <b>Claim: \( F(n, a) = F(n, n - a) \)</b><br/>
+      <b>Proof:</b> Consider the count sequences for \( a \) and \( n - a \):
+
+      <p>
+      <center>
+      <table>
+        <tr><td>\( 0 \)</td><td>\( 0 \)</td></tr>
+        <tr><td>\( a \)</td><td>\( (n-a) \)</td></tr>
+        <tr><td>\( 2a \)</td><td>\( 2(n-a) \)</td></tr>
+        <tr><td>\( 3a \)</td><td>\( 3(n-a) \)</td></tr>
+        <tr><td>\( \vdots \)</td><td>\( \vdots \)</td></tr>
+        <tr><td>\( (n-1)a \)</td><td>\( (n-1)(n-a) \)</td></tr>
+      </table>
+      </center>
+
+      <p>
+      Now let's try expanding some of the brackets; expanding the last one on the
+      right count sequence gives us:
+
+      $$
+      n^2 - an - n + a \equiv a \pmod n
+      $$
+
+      This is eerily similar to the second element in the left count sequence.
+      Let's try to show that the two sequences are in fact the same, but just
+      reversed around 0. What happens if we take the \( (i+1) \)-th element from
+      the right sequence?
+
+      $$
+      \begin{aligned}
+      (n-i)(n-a) &amp;= n^2 - an - in + ia \\
+                 &amp;= n(n - a - i) + ia \\
+                 &amp;= ia \pmod n
+      \end{aligned}
+      $$
+
+      And so we have a one-to-one mapping between the two sequences; if one covers
+      \( n \) then the second one covers \( n \) as well. \( \Box \)
+    </blockquote>
+
+  <p>
+    The previous result is a special case of the more general result
+    as follows: for any \( b \),
+
+    $$
+    F(n, a) = F(n, bn + a)
+    $$
+
+    this is easily proven using a similar approach.
+
+  <p>
+    Now what happens if our number is neither a prime nor a divisor of \( n \)?
+    For instance, we know that for \( n = 16 \), we can't cover it with 2 but we
+    can cover it with 3. Can we hope to cover it with 6? Intuitively again the
+    answer is no; we never touch any odd numbered objects.
+
+  <p>
+    So for any such \( a \), we must have that \( a \) is a composite number (not a prime).
+    We can rewrite \( a \) as \( pq \). Then we claim that for \( 1 \lt p,q \lt a \):
+
+    <blockquote>
+      <b>Claim:</b> \( F(n, pq) = F(n, p) \land F(n, q) \)<br/>
+      <b>Proof:</b> Let's consider the infinite count sequences for both numbers.
+
+      $$
+      \begin{aligned}
+      0, p, 2p, \ldots, (q-1)p, qp, \ldots, 2qp, \ldots \\
+      0, q, 2q, \ldots, (p-1)q, pq, \ldots, 2pq, \ldots
+      \end{aligned}
+      $$
+
+      <p>
+        From the table we can see that eventually there are common elements
+        \( qp \) and \( pq \), \( 2qp \) and \( 2pq \) and so on; in other
+        words we are interested in the <i>intersection</i> of these two count
+        sequences.
+
+      <p>
+        Now, if any one of the count sequences of \( p \) or \( q \) <i>does not</i>
+        cover \( n \) then we are done; the intersection with any other sequence
+        will not result in another sequence covering \( n \). If they both cover
+        \( n \) then their intersection, the count sequence for \( pq \) <i>also</i>
+        covers \( n \). \( \Box \)
+    </blockquote>
+
+  <p>
+    So with all these in mind we can finally give a "nice" expression
+    for \( F(n,a) \):
+
+    $$
+    F(n,a) = \begin{cases}
+       false &amp;\text{if } a = 0 \\
+       true  &amp;\text{if } a = 1 \\
+       false &amp;\text{if } a \mid n \\
+       true  &amp;\text{if } a \text{ is prime} \\
+       F(n,r)   &amp;\text{if } a = mn + r \land m \gt 0 \\
+       F(n,p) \land F(n,q) &amp;\text{otherwise} \\
+                           &amp;\text{where } a = pq \land p,q \lt a
+    \end{cases}
+    $$
+
+    The last case is actually equivalent to taking the prime number decomposition
+    of \( a \) and then checking if \( F(n, p) \) holds for each of the primes \( p \).
+    If you're programming this function you can also add the following case
+    to avoid having to decompose \( a \):
+
+    <blockquote>
+      If \( a \gt n/2 \) then \( F(n,a) = F(n,n-a) \).
+    </blockquote>
+
+    This follows directly from one of our previous results. Some applications
+    I can imagine for this is to produce a "good enough" shuffle of a list
+    (say a list of songs) without actually shuffling the list; we can pick
+    a suitable value for \( a \) and then just count in steps of \( a \).
+
+  <script>renderMathInElement(document.body);</script>
+</body>
+</html>
