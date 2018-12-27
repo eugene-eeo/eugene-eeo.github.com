@@ -59,19 +59,20 @@ td {
 
   <p>
     This idea is cleanly encoded in the modulus operator:
-    \( 8 \equiv 3 \pmod 5 \) and in general, \(p \equiv r \pmod q\)
-    iff \( p = aq + r \) \( \forall a \in \mathbb{Z} \).
+    \( 8 \equiv 3 \pmod 5 \) and in general, \(p \equiv q \pmod n\)
+    iff \( \exists a,b \in \mathbb{Z} \) s.t. \( p = an + r \) and
+    \( q = bn + r \).
+
+  <center>
+  <img src="static/ring-cover.png" width="40%"/>
+  <figcaption>Ring with \( n = 5 \), \( a = 2 \).</figcaption>
+  </center>
 
   <p>
     Now comes the general question: given \( n \) objects in a ring,
     can we cover the ring if we count by \( a \) each time? Let
     \( F(n, a) \) denote whether we can cover the ring of \( n \)
     objects counting by \( a \).
-
-  <center>
-  <img src="static/ring-cover.png" width="40%"/>
-  <figcaption>Ring with \( n = 5 \), \( a = 2 \).</figcaption>
-  </center>
 
   <p>
     Let's get some obvious cases out of the way:
@@ -84,9 +85,10 @@ td {
 
   <p>
     Now we ask the following: if we count using a prime number,
-    do we cover all values of \( n \), assuming that \( a \) does
+    do we cover all values of \( n \), given that \( a \) does
     not divide \( n \)? Well this <i>should</i> be true; it does
-    hold for simple examples like \( n = 5, a = 2,3 \).
+    hold for simple examples like \( n = 5, a = 2,3 \). Let's
+    see if it holds in general:
 
   <blockquote>
     <b>Claim:</b> if \( a \) is a prime and \( a \nmid n \) then \( a \) covers \( n \).<br/>
@@ -98,32 +100,54 @@ td {
 
       <p>
         Our claim of coverage is equivalent to saying that there are no two elements that repeat
-        themselves in this sequence. Now assume the contrary; that this sequence does contain
-        some duplicate. So we say there <i>is</i> some \( i \neq j \), \( ia \equiv ja \pmod n \),
-        and that both \( ia \) and \( ja \) are \( \leq (n-1)a \). If that's the case we can
-        rewrite them as:
+        themselves in this sequence. Now assume the contrary: this sequence contains some duplicate
+        elements \( ja \equiv ia \pmod n \), s.t. \( i \neq j \) and both \( ia \) and \( ja \) are \( \leq (n-1)a \).
+        Assume that \( i \lt j \). We can rewrite them as:
 
         $$
         \begin{aligned}
-        ia &amp;\equiv pn + r \\
-        ja &amp;\equiv qn + r
+        ia &amp;= pn + r \\
+        ja &amp;= qn + r
         \end{aligned}
         $$
 
-        Now assume, that \( i \lt j \). It follows that \( p \lt q \). This is the same as
-        saying that for some \( b \gt 0 \), \( q = p + b \):
+        We can rearrange these around \( r \) and set them to be equal to each other:
 
         $$
         \begin{aligned}
-        ja &amp;\equiv (p + b)n + r \\
-           &amp;\equiv pn + bn + r \\
-           &amp;\equiv ia + bn \geq ia + n
+        ia - pn &amp;= ja - qn \\
+        ja - ia &amp;= qn - pn \\
+        a(j - i) &amp;= n(q - p)
         \end{aligned}
         $$
 
-        So \( ja \) is not in the (finite) count sequence! Thus we have a contradiction, and we
-        find that the prime \( a \) <i>does</i> indeed cover \( n \) but only if \( a \) is
-        not a multiple of \( n \).
+        Since \( j \gt i \) (and it follows that \( q \gt p \)), we can rewrite \( j \) and \( q \)
+        in terms of \( i \) and \( p \):
+
+        $$
+        \begin{aligned}
+        j &amp;= i + c \\
+        p &amp;= q + d
+        \end{aligned}
+        $$
+
+        For some \( c,d \gt 0 \). Then we substitute back into our equation:
+
+        $$
+        ac = nd
+        $$
+
+        Now we know that \( a \) is a prime and doesn't divide \( n \).
+        So we can't split up \( a \) into multiples of smaller numbers,
+        and we can't express \( n \) in multiples of \( a \).
+        Thus any satisfying assignment to this equation is has the property that
+        \( c \) is a multiple of \( n \) and
+        \( d \) a multiple of \( a \).
+
+      <p>
+        Since \( c \gt 0 \) we now know that \( j \) is \( i \) plus some multiple of \( n \).
+        Thus \( j \gt n - 1 \), contradiction! We find that the prime \( a \) <i>does</i>
+        indeed cover \( n \) if \( a \) is not a multiple of \( n \). \( \Box \)
     </blockquote>
 
   <p>
@@ -243,17 +267,37 @@ td {
 
     The last case is actually equivalent to taking the prime number decomposition
     of \( a \) and then checking if \( F(n, p) \) holds for each of the primes \( p \).
-    If you're programming this function you can also add the following case
-    to avoid having to decompose \( a \):
+    One major simplification of the formula follows:
 
-    <blockquote>
-      If \( a \gt n/2 \) then \( F(n,a) = F(n,n-a) \).
-    </blockquote>
+    $$
+    F(n,a) = \begin{cases}
+      true  &amp;\text{if } \gcd(n,a) = 1 \text{ and } a \neq 0, \\
+      false &amp;\text{otherwise}
+    \end{cases}
+    $$
 
-    This follows directly from one of our previous results. Some applications
-    I can imagine for this is to produce a "good enough" shuffle of a list
-    (say a list of songs) without actually shuffling the list; we can pick
-    a suitable value for \( a \) and then just count in steps of \( a \).
+    In other words, \( n \) is covered by \( a \) iff \( n \) and \( a \) are coprime.
+    Checking this claim case-by-case:
+
+    <ol>
+      <li>\( a = 0 \): trivial.</li>
+      <li>\( a = 1 \): \( gcd(n, 1) = 1 \) for any integer \( n \).</li>
+      <li>\( a \mid n \): \( gcd(n, a) = ma \neq 1 \) for some integer \( m \).</li>
+      <li>\( a \) is prime: \( gcd(n, a) = 1 \) iff \( a \) doesn't divide \( n \).</li>
+      <li>\( F(n,a) = F(n, a \mod n) \) is a well-known result from the \( \gcd \) function.</li>
+      <li>\( F(n,pq) = F(n, p) \land F(n, q) \):<br/>
+        If \( \gcd(n,p) = 1 \) and \( \gcd(n,q) = 1 \) then \( \gcd(n,pq) = 1 \).
+        This is a well known result and we prove one aspect of it as follows: if \( p \)
+        and \( q \) do not have any primes in common with \( n \), then
+        the set of primes that make up \( pq \) is the union of those two
+        sets, which again have no primes in common with \( n \).
+      </li>
+    </ol>
+
+    <p>
+    Using this simplification means that we get some things for free, e.g.
+    \( F(n,a) = F(a,n) \) and also that there exists well-known, fast
+    algorithms to compute an answer.
 
   <script>renderMathInElement(document.body);</script>
 </body>
