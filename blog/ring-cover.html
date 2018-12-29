@@ -84,84 +84,17 @@ td {
     </ul>
 
   <p>
-    Now we ask the following: if we count using a prime number,
-    do we cover all values of \( n \), given that \( a \) does
-    not divide \( n \)? Well this <i>should</i> be true; it does
-    hold for simple examples like \( n = 5, a = 2,3 \). Let's
-    see if it holds in general:
-
-  <blockquote>
-    <b>Claim:</b> if \( a \) is a prime and \( a \nmid n \) then \( a \) covers \( n \).<br/>
-    <b>Proof:</b> Consider the count sequence (all taken mod \( n \)):
-
-        $$
-        0, a, 2a, 3a, \ldots (n-1)a
-        $$
-
-      <p>
-        Our claim of coverage is equivalent to saying that there are no two elements that repeat
-        themselves in this sequence. Now assume the contrary: this sequence contains some duplicate
-        elements \( ja \equiv ia \pmod n \), s.t. \( i \neq j \) and both \( ia \) and \( ja \) are \( \leq (n-1)a \).
-        Assume that \( i \lt j \). We can rewrite them as:
-
-        $$
-        \begin{aligned}
-        ia &amp;= pn + r \\
-        ja &amp;= qn + r
-        \end{aligned}
-        $$
-
-        We can rearrange these around \( r \) and set them to be equal to each other:
-
-        $$
-        \begin{aligned}
-        ia - pn &amp;= ja - qn \\
-        ja - ia &amp;= qn - pn \\
-        a(j - i) &amp;= n(q - p)
-        \end{aligned}
-        $$
-
-        Since \( j \gt i \) (and it follows that \( q \gt p \)), we can rewrite \( j \) and \( q \)
-        in terms of \( i \) and \( p \):
-
-        $$
-        \begin{aligned}
-        j &amp;= i + c \\
-        p &amp;= q + d
-        \end{aligned}
-        $$
-
-        For some \( c,d \gt 0 \). Then we substitute back into our equation:
-
-        $$
-        ac = nd
-        $$
-
-        Now we know that \( a \) is a prime and doesn't divide \( n \).
-        So we can't split up \( a \) into multiples of smaller numbers,
-        and we can't express \( n \) in multiples of \( a \).
-        Thus any satisfying assignment to this equation is has the property that
-        \( c \) is a multiple of \( n \) and
-        \( d \) a multiple of \( a \).
-
-      <p>
-        Since \( c \gt 0 \) we now know that \( j \) is \( i \) plus some multiple of \( n \).
-        Thus \( j \gt n - 1 \), contradiction! We find that the prime \( a \) <i>does</i>
-        indeed cover \( n \) if \( a \) is not a multiple of \( n \). \( \Box \)
-    </blockquote>
-
-  <p>
-    We then can ease our lives with this observation - if say \( n = 5 \)
+    Just to warm up, we start off with this observation - if say \( n = 5 \)
     and \( a = 4 \), then our count sequence is:
 
     $$
     0, 4, 3, 2, 1
     $$
 
-    But this is the same as the count sequence for 1: \( 0, 1, 2, 3, 4 \)
-    but reversed around 0. Intuitively this makes sense - since we're adding
-    in a ring of \( n \) elements it shouldn't matter if we count from \( n - b \)
-    or \( b \). Let's prove it:
+    But this is the same as the count sequence for 1 (\( 0, 1, 2, 3, 4 \)),
+    only reversed around 0. Intuitively this makes sense - we're adding in
+    a ring of \( n \) elements so it shouldn't matter if we count from
+    \( n - a \) or \( a \). Let's prove it:
 
     <blockquote>
       <b>Claim: \( F(n, a) = F(n, n - a) \)</b><br/>
@@ -215,14 +148,15 @@ td {
     this is easily proven using a similar approach.
 
   <p>
-    Now what happens if our number is neither a prime nor a divisor of \( n \)?
+    Now what happens if our is not a divisor of \( n \)?
+    Let's focus on one case first - composite numbers.
     For instance, we know that for \( n = 16 \), we can't cover it with 2 but we
-    can cover it with 3. Can we hope to cover it with 6? Intuitively again the
-    answer is no; we never touch any odd numbered objects.
+    can cover it with 3. Can we hope to cover it with 6? If we write out the count
+    sequence, the answer is no, because we never touch any odd numbered objects.
 
   <p>
-    So for any such \( a \), we must have that \( a \) is a composite number (not a prime).
-    We can rewrite \( a \) as \( pq \). Then we claim that for \( 1 \lt p,q \lt a \):
+    Since \( a \) is a composite number we can rewrite it as \( a = pq \),
+    with suitable values for \( p, q \) - notably, \( 1 \lt p, q \lt a \).
 
     <blockquote>
       <b>Claim:</b> \( F(n, pq) = F(n, p) \land F(n, q) \)<br/>
@@ -238,8 +172,8 @@ td {
       <p>
         From the table we can see that eventually there are common elements
         \( qp \) and \( pq \), \( 2qp \) and \( 2pq \) and so on; in other
-        words we are interested in the <i>intersection</i> of these two count
-        sequences.
+        words the count sequence of \( pq \) is given by the <i>intersection</i>
+        of these two count sequences.
 
       <p>
         Now, if any one of the count sequences of \( p \) or \( q \) <i>does not</i>
@@ -250,8 +184,80 @@ td {
     </blockquote>
 
   <p>
-    So with all these in mind we can finally give a "nice" expression
-    for \( F(n,a) \):
+    Now we're only left with prime numbers that do not divide \( n \).
+    Some small experiments show that counting using these numbers
+    work; for instance \( n = 5, a = 2,3 \), and for \( n = 16 \),
+    \( a = 3, 5, 7, 11, 13 \) all work. Let's see if it holds in general:
+
+  <blockquote>
+    <b>Claim:</b> if \( a \) is a prime and \( a \nmid n \) then \( a \) covers \( n \).<br/>
+    <b>Proof:</b> Consider the count sequence (all taken mod \( n \)):
+
+        $$
+        0, a, 2a, 3a, \ldots (n-1)a
+        $$
+
+      <p>
+        Our claim of coverage is equivalent to saying that there are no two elements that repeat
+        themselves in this sequence. Now assume the contrary: this sequence contains some duplicate
+        elements \( ja \equiv ia \pmod n \), s.t. \( i \neq j \) and both \( 0 \leq i, j \leq n-1 \).
+        Assume, without loss of generality that \( i \lt j \). We can rewrite them as:
+
+        $$
+        \begin{aligned}
+        ia &amp;= pn + r \\
+        ja &amp;= qn + r
+        \end{aligned}
+        $$
+
+        We can rearrange these around \( r \) and set them to be equal to each other:
+
+        $$
+        \begin{aligned}
+        ia - pn &amp;= ja - qn \\
+        ja - ia &amp;= qn - pn \\
+        a(j - i) &amp;= n(q - p)
+        \end{aligned}
+        $$
+
+        Since \( j \gt i \) (and it follows that \( q \gt p \)), we can rewrite \( j \) and \( q \)
+        in terms of \( i \) and \( p \):
+
+        $$
+        \begin{aligned}
+        j &amp;= i + c \\
+        p &amp;= q + d
+        \end{aligned}
+        $$
+
+        For some \( c,d \gt 0 \). Then we substitute back into our equation:
+
+        $$
+        ac = nd
+        $$
+
+        Now we know that \( a \) is a prime and doesn't divide \( n \).
+        So we can't split up \( a \) into multiples of smaller numbers,
+        and we can't express \( n \) in multiples of \( a \).
+        Thus any satisfying assignment to this equation has the form
+        \( c = fn \) and \( d = fa \) for some \( f \in \mathbb{Z} \).
+
+      <p>
+        Since \( c \gt 0 \) we now know that \( f \gt 0 \) and thus
+        \( j = i + c = i + fn \gt i + n \gt n - 1 \), a contradiction!
+        We find that the prime \( a \) <i>does</i> indeed cover \( n \) if
+        \( a \) is not a multiple of \( n \). \( \Box \)
+    </blockquote>
+
+  <p>
+    <i>In hindsight,</i> the argument above can be tweaked to show the case
+    for when \( a \) is a compound number. The same argument can also show
+    that if \( a \) and \( n \) are coprime (do not share any common divisors)
+    then \( a \) covers \( n \) - this leads to a more direct expression for
+    \( F(n,a) \).
+
+  <p>
+    So with all these we can finally give an expression for \( F(n,a) \):
 
     $$
     F(n,a) = \begin{cases}
@@ -271,26 +277,26 @@ td {
 
     $$
     F(n,a) = \begin{cases}
-      true  &amp;\text{if } \gcd(n,a) = 1 \text{ and } a \neq 0, \\
+      true  &amp;\text{if } \gcd(n,a) = 1 \land a \neq 0, \\
       false &amp;\text{otherwise}
     \end{cases}
     $$
 
-    In other words, \( n \) is covered by \( a \) iff \( n \) and \( a \) are coprime.
-    Checking this claim case-by-case:
+    In other words, \( n \) is covered by \( a \) iff \( n \) and \( a \) are coprime
+    and \( a \neq 0 \). Checking this claim case-by-case:
 
     <ol>
       <li>\( a = 0 \): trivial.</li>
-      <li>\( a = 1 \): \( gcd(n, 1) = 1 \) for any integer \( n \).</li>
-      <li>\( a \mid n \): \( gcd(n, a) = ma \neq 1 \) for some integer \( m \).</li>
-      <li>\( a \) is prime: \( gcd(n, a) = 1 \) iff \( a \) doesn't divide \( n \).</li>
-      <li>\( F(n,a) = F(n, a \mod n) \) is a well-known result from the \( \gcd \) function.</li>
+      <li>\( a = 1 \): \( \gcd(n, 1) = 1 \) for any integer \( n \).</li>
+      <li>\( a \mid n \): \( a = nm \), \( \gcd(n, a) = \gcd(n, mn) = mn \neq 1 \).</li>
+      <li>\( a \) is prime: \( \gcd(n, a) = 1 \) iff \( a \) doesn't divide \( n \).</li>
+      <li>\( F(n,a) = F(n, a \mod n) \): the \( \gcd \) equivalent is a well-known result.</li>
       <li>\( F(n,pq) = F(n, p) \land F(n, q) \):<br/>
+        <i>We prove one case; the rest is similar:</i>
         If \( \gcd(n,p) = 1 \) and \( \gcd(n,q) = 1 \) then \( \gcd(n,pq) = 1 \).
-        This is a well known result and we prove one aspect of it as follows: if \( p \)
-        and \( q \) do not have any primes in common with \( n \), then
-        the set of primes that make up \( pq \) is the union of those two
-        sets, which again have no primes in common with \( n \).
+        If \( p \) and \( q \) do not have any primes in common with \( n \), then
+        the set of primes that make up \( pq \) is the union of the two sets which
+        again have no primes in common with \( n \).
       </li>
     </ol>
 
