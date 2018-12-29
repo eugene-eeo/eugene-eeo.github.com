@@ -78,7 +78,8 @@ td {
     Let's get some obvious cases out of the way:
 
     <ul>
-      <li>\( a = 0 \) never covers any \( n \). I don't really want to prove this.</li>
+      <li>\( n = 0 \) is covered by any \( a \).</li>
+      <li>\( a = 0 \) never covers any \( n \).</li>
       <li>\( a = 1 \) always covers any \( n \).</li>
       <li>If \( n \) is a multiple of \( a \), i.e. \( a \mid n \) then \( a \) doesn't cover \( n \).</li>
     </ul>
@@ -145,7 +146,9 @@ td {
     F(n, a) = F(n, bn + a)
     $$
 
-    this is easily proven using a similar approach.
+    this is easily proven using a similar approach. This means counting with \(a\)
+    is the same as counting with the remainder of \( a \) mod \( n \), which eases
+    our lives.
 
   <p>
     Now what happens if our is not a divisor of \( n \)?
@@ -164,8 +167,8 @@ td {
 
       $$
       \begin{aligned}
-      0, p, 2p, \ldots, (q-1)p, qp, \ldots, 2qp, \ldots \\
-      0, q, 2q, \ldots, (p-1)q, pq, \ldots, 2pq, \ldots
+      0, p, 2p, \ldots, qp, \ldots, 2qp, \ldots \\
+      0, q, 2q, \ldots, pq, \ldots, 2pq, \ldots
       \end{aligned}
       $$
 
@@ -184,126 +187,138 @@ td {
     </blockquote>
 
   <p>
-    Now we're only left with prime numbers that do not divide \( n \).
-    Some small experiments show that counting using these numbers
-    work; for instance \( n = 5, a = 2,3 \), and for \( n = 16 \),
-    \( a = 3, 5, 7, 11, 13 \) all work. Let's see if it holds in general:
+    So we know that if \( a \) does cover \( n \), then the divisors of
+    \( a \) also need to cover \( n \). If we follow this recursive argument,
+    then we are eventually left with prime numbers. E.g.:
+
+    $$
+    \begin{aligned}
+    F(n, 84) &amp;= F(n, 2) \land F(n, 42) \\
+             &amp;= F(n, 2) \land F(n, 2) \land F(n, 21) \\
+             &amp;\ldots \\
+             &amp;= F(n, 2) \land F(n, 2) \land F(n, 3) \land F(n, 7)
+    \end{aligned}
+    $$
+
+    Now, we know that if any (prime) number divides \( n \) then we can't
+    hope to cover \( n \) with said number. This implies that in order for
+    \( a \) to cover \( n \), \( a \) needs to share no common divisors with
+    \( n \), i.e. \( a \) and \( n \) need to be <i>coprime</i>. Otherwise,
+    eventually when we break down \( a \), we would find some \( p \) to be
+    a multiple of \( n \).
 
   <blockquote>
-    <b>Claim:</b> if \( a \) is a prime and \( a \nmid n \) then \( a \) covers \( n \).<br/>
-    <b>Proof:</b> Consider the count sequence (all taken mod \( n \)):
+    <b>Claim:</b> if \( a \) and \( n \) are coprime then \( a \) covers \( n \).<br/>
+    <b>Proof:</b> Consider \( a \)'s count sequence (all taken mod \( n \)):
 
-        $$
-        0, a, 2a, 3a, \ldots (n-1)a
-        $$
+      $$
+      0, a, 2a, 3a, \ldots (n-1)a
+      $$
 
-      <p>
-        Our claim of coverage is equivalent to saying that there are no two elements that repeat
-        themselves in this sequence. Now assume the contrary: this sequence contains some duplicate
-        elements \( ja \equiv ia \pmod n \), s.t. \( i \neq j \) and both \( 0 \leq i, j \leq n-1 \).
-        Assume, without loss of generality that \( i \lt j \). We can rewrite them as:
+    <p>
+      Our claim of coverage is equivalent to saying that there are no two elements that repeat
+      themselves in this sequence.
 
-        $$
-        \begin{aligned}
-        ia &amp;= pn + r \\
-        ja &amp;= qn + r
-        \end{aligned}
-        $$
+    <p>
+      Now assume the contrary: this sequence contains some duplicate elements \( ja \equiv ia \pmod n \),
+      s.t. \( i \neq j \) and both \( 0 \leq i \lt j \leq n-1 \). We can rewrite them as:
 
-        We can rearrange these around \( r \) and set them to be equal to each other:
+      $$
+      \begin{aligned}
+      ia &amp;= pn + r \\
+      ja &amp;= qn + r
+      \end{aligned}
+      $$
 
-        $$
-        \begin{aligned}
-        ia - pn &amp;= ja - qn \\
-        ja - ia &amp;= qn - pn \\
-        a(j - i) &amp;= n(q - p)
-        \end{aligned}
-        $$
+      We can rearrange these around \( r \) and set them to be equal to each other:
 
-        Since \( j \gt i \) (and it follows that \( q \gt p \)), we can rewrite \( j \) and \( q \)
-        in terms of \( i \) and \( p \):
+      $$
+      \begin{aligned}
+      ia - pn &amp;= ja - qn \\
+      ja - ia &amp;= qn - pn \\
+      a(j - i) &amp;= n(q - p)
+      \end{aligned}
+      $$
 
-        $$
-        \begin{aligned}
-        j &amp;= i + c \\
-        p &amp;= q + d
-        \end{aligned}
-        $$
+      Since \( j \gt i \) (and it follows that \( q \gt p \)), we can rewrite \( j \) and \( q \)
+      in terms of \( i \) and \( p \):
 
-        For some \( c,d \gt 0 \). Then we substitute back into our equation:
+      $$
+      \begin{aligned}
+      j &amp;= i + c \\
+      p &amp;= q + d
+      \end{aligned}
+      $$
 
-        $$
-        ac = nd
-        $$
+      For some \( c,d \gt 0 \). Then we substitute back into our equation:
 
-        Now we know that \( a \) is a prime and doesn't divide \( n \).
-        So we can't split up \( a \) into multiples of smaller numbers,
-        and we can't express \( n \) in multiples of \( a \).
-        Thus any satisfying assignment to this equation has the form
-        \( c = fn \) and \( d = fa \) for some \( f \in \mathbb{Z} \).
+      $$
+      ac = nd
+      $$
 
-      <p>
-        Since \( c \gt 0 \) we now know that \( f \gt 0 \) and thus
-        \( j = i + c = i + fn \gt i + n \gt n - 1 \), a contradiction!
-        We find that the prime \( a \) <i>does</i> indeed cover \( n \) if
-        \( a \) is not a multiple of \( n \). \( \Box \)
-    </blockquote>
+      Now we know that \( a \) and \( n \) are coprime. So we can't get rid
+      of common multiples on both sides. Thus, any satisfying assignment to
+      this equation has the form \( c = fn \) and \( d = fa \) for some
+      \( f \in \mathbb{Z} \).
 
-  <p>
-    <i>In hindsight,</i> the argument above can be tweaked to show the case
-    for when \( a \) is a compound number. The same argument can also show
-    that if \( a \) and \( n \) are coprime (do not share any common divisors)
-    then \( a \) covers \( n \) - this leads to a more direct expression for
-    \( F(n,a) \).
+    <p>
+      Since \( c \gt 0 \), it follows that \( f \gt 0 \) and now a chain
+      of statements follows:
+
+      $$
+      j = i + c = i + fn \gt i + n \gt n - 1
+      $$
+
+      we've found our contradiction! Thus we find that the prime \( a \)
+      <i>does</i> indeed cover \( n \) if \( a \) is not a multiple of \( n \). \( \Box \)
+  </blockquote>
 
   <p>
     So with all these we can finally give an expression for \( F(n,a) \):
 
     $$
     F(n,a) = \begin{cases}
-       false &amp;\text{if } a = 0 \\
-       true  &amp;\text{if } a = 1 \\
-       false &amp;\text{if } a \mid n \\
-       true  &amp;\text{if } a \text{ is prime} \\
-       F(n,r)   &amp;\text{if } a = mn + r \land m \gt 0 \\
-       F(n,p) \land F(n,q) &amp;\text{otherwise} \\
-                           &amp;\text{where } a = pq \land p,q \lt a
-    \end{cases}
-    $$
-
-    The last case is actually equivalent to taking the prime number decomposition
-    of \( a \) and then checking if \( F(n, p) \) holds for each of the primes \( p \).
-    One major simplification of the formula follows:
-
-    $$
-    F(n,a) = \begin{cases}
-      true  &amp;\text{if } \gcd(n,a) = 1 \land a \neq 0, \\
+      true  &amp;\text{if } n = 0, \\
+      true  &amp;\text{if } \gcd(n,a) = 1 \text{ and } a \neq 0, \\
       false &amp;\text{otherwise}
     \end{cases}
     $$
 
-    In other words, \( n \) is covered by \( a \) iff \( n \) and \( a \) are coprime
-    and \( a \neq 0 \). Checking this claim case-by-case:
+  <p>
+    We have, in the end, a nice result with well-known, fast algorithms to compute an
+    answer. The correctness of the final expression is pretty easy to show; if we pick
+    an \( a \) which is not coprime to \( n \) then using the decomposition argument
+    we eventually find a prime that divides \( n \).
 
-    <ol>
-      <li>\( a = 0 \): trivial.</li>
-      <li>\( a = 1 \): \( \gcd(n, 1) = 1 \) for any integer \( n \).</li>
-      <li>\( a \mid n \): \( a = nm \), \( \gcd(n, a) = \gcd(n, mn) = mn \neq 1 \).</li>
-      <li>\( a \) is prime: \( \gcd(n, a) = 1 \) iff \( a \) doesn't divide \( n \).</li>
-      <li>\( F(n,a) = F(n, a \mod n) \): the \( \gcd \) equivalent is a well-known result.</li>
-      <li>\( F(n,pq) = F(n, p) \land F(n, q) \):<br/>
-        <i>We prove one case; the rest is similar:</i>
-        If \( \gcd(n,p) = 1 \) and \( \gcd(n,q) = 1 \) then \( \gcd(n,pq) = 1 \).
-        If \( p \) and \( q \) do not have any primes in common with \( n \), then
-        the set of primes that make up \( pq \) is the union of the two sets which
-        again have no primes in common with \( n \).
-      </li>
-    </ol>
+  <h3>Cycle Lengths</h3>
+
+  <blockquote>
+    Adapting the previous proof we can show the cycle lengths.
+    Let \( g = \gcd(n, a) \). Then:
+
+    $$
+    \begin{aligned}
+      ac &amp;= nd \\
+    gca' &amp;= gdn' \\
+     ca' &amp;= dn'
+    \end{aligned}
+    $$
+
+    Remembering that \( c = j - i \), we see that we get cycles of length
+    \( c = pn' \lt n \) for a maximal \( p \in \mathbb{Z}_+ \), where
+    \( n' = n / \gcd(n, a) \).
 
     <p>
-    Using this simplification means that we get some things for free, e.g.
-    \( F(n,a) = F(a,n) \) and also that there exists well-known, fast
-    algorithms to compute an answer.
+    Example: \( n = 16, a = 6 \):<br/>
+    We expect \( c = \frac{16p}{\gcd(16, 6)} = 8p \lt 16 \).
+    This means \( p = 1 \).
+
+    $$
+    0, 6, 12, 2, 8, 14, 4, 10, 0, 6, \ldots
+    $$
+
+    The cycle length (position of second 0 - position of first 0) is 8.
+  </blockquote>
 
   <script>renderMathInElement(document.body);</script>
 </body>
