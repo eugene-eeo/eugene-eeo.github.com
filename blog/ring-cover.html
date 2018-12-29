@@ -121,9 +121,8 @@ td {
       n^2 - an - n + a \equiv a \pmod n
       $$
 
-      This is eerily similar to the second element in the left count sequence.
-      Let's try to show that the two sequences are in fact the same, but just
-      reversed around 0. What happens if we take the \( (i+1) \)-th element from
+      This is the second element in the left count sequence. Let's try to show this
+      holds in general. What happens if we take the \( (i+1) \)-th element from
       the right sequence?
 
       $$
@@ -135,7 +134,7 @@ td {
       $$
 
       And so we have a one-to-one mapping between the two sequences; if one covers
-      \( n \) then the second one covers \( n \) as well. \( \Box \)
+      \( n \) then the second one covers \( n \) as well, and vice-versa. \( \Box \)
     </blockquote>
 
   <p>
@@ -146,9 +145,9 @@ td {
     F(n, a) = F(n, bn + a)
     $$
 
-    this is easily proven using a similar approach. This means counting with \(a\)
-    is the same as counting with the remainder of \( a \) mod \( n \), which eases
-    our lives.
+    which can be easily proven using a similar approach. This means counting with
+    \(a\) is the same as counting with the remainder of \( a \) mod \( n \), which
+    eases our lives.
 
   <p>
     Now what happens if our is not a divisor of \( n \)?
@@ -163,27 +162,25 @@ td {
 
     <blockquote>
       <b>Claim:</b> \( F(n, pq) = F(n, p) \land F(n, q) \)<br/>
-      <b>Proof:</b> Let's consider the infinite count sequences for both numbers.
+      <b>Proof:</b> Let's prove \( F(n, pq) \implies F(n, p) \land F(n, q) \).
+      Examining the count sequence of \( pq \), we can express each
+      element \( ipq \), with \( 0 \leq i \leq n-1 \) as:
 
       $$
       \begin{aligned}
-      0, p, 2p, \ldots, qp, \ldots, 2qp, \ldots \\
-      0, q, 2q, \ldots, pq, \ldots, 2pq, \ldots
+       ip &amp;\equiv r \pmod{n} \\
+        q &amp;\equiv q \pmod{n} \\
+      ipq &amp;\equiv rq \equiv r' \pmod{n}
       \end{aligned}
       $$
 
-      <p>
-        From the table we can see that eventually there are common elements
-        \( qp \) and \( pq \), \( 2qp \) and \( 2pq \) and so on; in other
-        words the count sequence of \( pq \) is given by the <i>intersection</i>
-        of these two count sequences.
+      Now the reasoning is quite subtle &mdash; if \( r' \) is different for
+      \( n \) values of \( i \), then \( r \) must also be different for
+      \( n \) values of \( i \). Thus both \( p \) and \( q \) cover \( n \).
 
       <p>
-        Now, if any one of the count sequences of \( p \) or \( q \) <i>does not</i>
-        cover \( n \) then we are done; the intersection with any other sequence
-        will not result in another sequence covering \( n \). If they both cover
-        \( n \) then their intersection, the count sequence for \( pq \) <i>also</i>
-        covers \( n \). \( \Box \)
+      The second direction is symmetric and can be found using the
+      same technique. \( \Box \)
     </blockquote>
 
   <p>
@@ -240,7 +237,7 @@ td {
       \end{aligned}
       $$
 
-      Since \( j \gt i \) (and it follows that \( q \gt p \)), we can rewrite \( j \) and \( q \)
+      Since \( j \gt i \) (it follows that \( q \gt p \)), we can rewrite \( j \) and \( q \)
       in terms of \( i \) and \( p \):
 
       $$
@@ -250,20 +247,19 @@ td {
       \end{aligned}
       $$
 
-      For some \( c,d \gt 0 \). Then we substitute back into our equation:
+      for some \( c,d \gt 0 \). Some substitution:
 
       $$
       ac = nd
       $$
 
       Now we know that \( a \) and \( n \) are coprime. So we can't get rid
-      of common multiples on both sides. Thus, any satisfying assignment to
+      of common multiples on both sides. Thus, any integer solutions for
       this equation has the form \( c = fn \) and \( d = fa \) for some
       \( f \in \mathbb{Z} \).
 
     <p>
-      Since \( c \gt 0 \), it follows that \( f \gt 0 \) and now a chain
-      of statements follows:
+      Since \( c \gt 0 \), it follows that \( f \gt 0 \) and:
 
       $$
       j = i + c = i + fn \gt i + n \gt n - 1
@@ -299,8 +295,8 @@ td {
     $$
     \begin{aligned}
       ac &amp;= nd \\
-    gca' &amp;= gdn' \\
-     ca' &amp;= dn'
+    ga'c &amp;= gn'd \\
+     a'c &amp;= n'd
     \end{aligned}
     $$
 
