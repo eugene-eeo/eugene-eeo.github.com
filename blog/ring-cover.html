@@ -181,6 +181,40 @@ td {
       <p>
       The second direction is symmetric and can be found using the
       same technique. \( \Box \)
+
+      <h3>Aside</h3>
+      <p>
+      Perhaps a more intuitive proof for the second direction can be given as follows.
+      Consider the count sequences of both \( p \) and \( q \), extended
+      to infinity. Then we have:
+
+      <center>
+      <table>
+        <tr><td style="background: #DDD">\( 0 \)</td><td style="background: #DDD">\( 0 \)</td></tr>
+        <tr><td>\( p \)</td><td>\( q \)</td></tr>
+        <tr><td>\( 2p \)</td><td>\( 2q \)</td></tr>
+        <tr><td>\( 2p \)</td><td>\( 2q \)</td></tr>
+        <tr><td>\( \ldots \)</td><td>\( \ldots \)</td></tr>
+        <tr><td style="background: #DDD">\( qp \)</td><td style="background: #DDD">\( pq \)</td></tr>
+        <tr><td>\( \ldots \)</td><td>\( \ldots \)</td></tr>
+        <tr><td style="background: #DDD">\( 2qp \)</td><td style="background: #DDD">\( 2pq \)</td></tr>
+        <tr><td>\( \ldots \)</td><td>\( \ldots \)</td></tr>
+      </table>
+      </center>
+
+      <p>
+        Then we see that the count sequence of \( pq \) is equivalent to
+        the intersection of the count sequences of \( p \) and \( q \).
+        The reasoning follows &mdash; if \( p \) and \( q \) both
+        cover \( n \), then \( 0, p, 2p, \ldots (n-1) p \) generates some
+        permutation of \( 0, 1, 2, \ldots n-1 \). This multiplied by \( q \)
+        generates yet <i>another</i> permutation of \( 0, 1, 2, \ldots n-1 \)
+        and thus also covers \( n \).
+
+      <p>
+        It is clear then that if one of them doesn't cover \( n \) then
+        \( pq \) also doesn't cover \( n \). \( \Box \)
+
     </blockquote>
 
   <p>
