@@ -1,0 +1,237 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset='utf8'/>
+  <meta name='viewport' content='width=device-width, initial-scale=1'/>
+  <link rel='stylesheet' href='styles/document.css'/>
+  <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.1/katex.min.css'/>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.1/katex.min.js'></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.1/contrib/auto-render.min.js'></script>
+  <title>Approximating Spheres with Triangles</title>
+</head>
+<body>
+  <h1>Approximating Spheres with Triangles</h1>
+
+  <center>
+    <img src='static/st-main.png' width='300px' align='center'/>
+  </center>
+
+  <p>
+    This is a homemade solution to a problem that probably already has very
+    thoroughly investigated solutions - <i>how do we make a collection of triangles
+    look like a sphere?</i> For me, this screams immediately of solving using
+    recursion &mdash; if some shape looks like a sphere, then we can make
+    it look <i>more</i> like a sphere.
+
+  <p>
+    The initial shape that we start off with is the octahedron &mdash; two
+    pyramids with their bases glued together, and we scale it so that it fits
+    within a unit sphere. This gives us 8 initial triangles to work with.
+
+  <center>
+    <img src='static/st-sphere-pack.png' width='300px' align='center'/>
+  </center>
+
+  <h3>Edge Subdivision</h3>
+  <p>
+    We recursively generate more triangles from each face as follows.
+    Each triangle has 3 midpoints along 3 of it's edges. We call these
+    \( m_{01}, m_{02}, m_{12} \). We then <i>lift</i> these midpoints so they
+    touch the surface of the sphere &mdash; in other words we normalise
+    them. We can then form 4 new triangles from the midpoints and the
+    existing vertices. It's easier to see this on a diagram:
+
+  <pre>
+       p0                  p0
+       /\                  /\
+      /  \                /  \
+     /    \      =&gt;  m01 /....\ m02
+    /      \            / \  / \
+   /________\          /___\/___\
+  p1          p2      p1    m12  p2</pre>
+
+  <p>
+    Because this algorithm subdivides triangles based on the midpoints of
+    their edges, we call this <i>edge subdivision</i>. Below we visualise
+    the results of running it twice:
+
+  <div class='row'>
+    <div class='col-1-2'>
+      <img src='static/st-edge-1.png' width='100%' align='center'/>
+      <figcaption>
+        Looks like a huge DnD die.
+      </figcaption>
+    </div>
+    <div class='col-1-2'>
+      <img src='static/st-edge-2.png' width='100%' align='center'/>
+      <figcaption>
+        Starting to look more like a sphere.
+      </figcaption>
+    </div>
+  </div>
+
+  <p>
+    We can repeat this procedure on the triangles until we run out of
+    memory/patience or we reach a certain depth \( d \). This algorithm
+    generates \( 8 * 4^d \) triangles at the end. The number of triangles
+    generated throughout the lifetime is similarly, \( 8( 4^1 + 4^2 + \ldots + 4^d ) \)
+    which fortunately still works out to \( \Theta( 4^d ) \).
+
+  <p>
+    Running it with \( d = 4 \) gives something that looks a lot like a sphere,
+    as shown below, while running it with \( d = 3 \) gives an aesthetically
+    pleasing "chunky" sphere (first diagram on the page).
+
+  <center>
+    <img src='static/st-edge-4.png' width='300px' align='center'/>
+  </center>
+
+  <h2>Alternatives</h2>
+  <h3>Midpoint Subdivision</h3>
+  <p>
+    An alternative to edge subdivision is <i>midpoint subdivision</i>. This is a
+    variant which lifts only one midpoint on the triangle, and creates two new
+    triangles. The tricky thing about this algorithm is how you define the points
+    for the new triangles:
+
+  <pre>
+       p0                 p0
+       .                  .
+      / \                /|\
+     /   \      =&gt;      / | \
+    /     \            /  |  \
+   /_______\          /___|___\
+  p1          p2      p1  m   p2</pre>
+
+  <p>
+    The algorithm should generate two new triangles \( (m, p_0, p_1) \) and \( (m, p_2, p_1) \),
+    instead of the more natural \( (p_0, p_1, m) \), \( (p_0, m, p_2) \). In the first
+    case, we make sure that the <i>next</i> subdivision would produce a diagonal cut,
+    from \( m \) to \( (p_0, p_1) \) and \( (p_2, p_0) \), whereas in the second case
+    the algorithm just keeps making cuts from \( p_0 \). A picture paints a thousand words:
+
+  <div class='row'>
+    <div class='col-1-2'>
+      <img src='static/st-midpoint-wrong.png' width='100%' align='center'/>
+      <figcaption>
+        Incorrect triangulation - just looks like 2 cones glued together.
+      </figcaption>
+    </div>
+    <div class='col-1-2'>
+      <img src='static/st-midpoint-ok.png' width='100%' align='center'/>
+      <figcaption>
+        Correct triangulation, more like a sphere.
+      </figcaption>
+    </div>
+  </div>
+
+  <p>
+    Midpoint subdivision gives us \( \Theta( 2^d ) \) triangles, so we would expect
+    to use a higher depth for it to look more spherical. At higher depths we see
+    the pattern of spheres drawn by the algorithm - it contains more obtuse and scalene
+    (thin and wide) triangles compared to that of edge subdivision, which has more
+    equilateral-looking triangles:
+
+  <center>
+    <img src='static/st-midpoint-6.png' width='300px' align='center'/>
+    <figcaption>
+      Midpoint-subdivision with \( d = 6 \).
+    </figcaption>
+  </center>
+
+  <p>
+    An advantage that it has over edge-subdivision is that the memory consumption
+    can be controlled more easily because it grows in a factor of 2 rather than
+    a factor of 4.
+
+  <h3>Centroid Subdivision</h3>
+  <p>
+    Yet another alternative is called <i>centroid subdivision</i>. Here, we lift
+    the centroid \( c \) from the triangle, and then make 3 new triangles:
+
+  <pre>
+       p0                 p0
+       .                  .
+      / \                /|\
+     /   \      =&gt;      / | \
+    /     \            /._c_.\
+   /_______\          //_____\\
+  p1          p2      p1      p2</pre>
+  <figcaption>
+    The ASCII art doesn't quite do it justice.
+  </figcaption>
+
+  <p>
+    This was my original solution to this problem, and as we see it doesn't quite
+    work; there are deep grooves in the surface of the sphere that cannot be fixed
+    even at higher depths:
+
+  <div class='row'>
+    <div class='col-1-2'>
+      <img src='static/st-centroid-3.png' width='100%' align='center'/>
+      <center><figcaption>\( d = 3 \), notice the deep cuts.</figcaption></center>
+    </div>
+    <div class='col-1-2'>
+      <img src='static/st-centroid-4.png' width='100%' align='center'/>
+      <center><figcaption>\( d = 4 \) still has deep cuts.</figcaption></center>
+    </div>
+  </div>
+
+  <p>
+    The lesson learnt here is that the subdivision strategies should avoid producing
+    thin triangles. This is because intuitively there is more value in producing
+    "fatter", regular triangles. Thin triangles, when subdivided are going to fill
+    less of the sphere's surface, and it will be even worse when you subdivide
+    thinner and thinner strips.
+
+  <h2>Hybrids</h2>
+  <p>
+    A couple more nice pictures of running hybrid algorithms - a mix between
+    multiple algorithms:
+
+  <div class='row'>
+    <p>
+      <img src='static/st-hybrid1.png' width='150px' align='left' hspace=10/>
+
+      <h3>Edge-Centroid</h3>
+      We switch between edge- and centroid-subdivision as the algorithm
+      progresses - i.e. first run edge, then centroid, then edge, ... until
+      the depth is 0.
+  </div>
+
+  <div class='row'>
+    <p>
+      <img src='static/st-hybrid2.png' width='150px' align='left' hspace=10/>
+
+      <h3>Centroid-Edge</h3>
+      Similar to Edge-Centroid, but we use centroid-subdivision first.
+      Notice how the "bias" in the algorithm has changed completely.
+  </div>
+
+  <div class='row'>
+    <p>
+      <img src='static/st-hybrid3.png' width='150px' align='left' hspace=10/>
+
+      <h3>Midpoint-Centroid-Edge</h3>
+      Probably the most interesting out of all the hybrid algorithms because
+      of the shapes produced.
+  </div>
+
+  <h2>Misc</h2>
+  <p>
+    You can get the code that generates these spheres <a href='static/spheres.py'>here</a>.
+    Requires matplotlib. Usage example:
+
+    <pre>
+$ python spheres.py &lt;method&gt; &lt;depth&gt; <a href="https://matplotlib.org/gallery/color/colormap_reference.html">&lt;colormap&gt;</a>
+$ python spheres.py edge 3 YlGnBu_r
+$ python spheres.py centroid 3 YlGnBu_r
+$ python spheres.py midpoint 3 YlGnBu_r
+</pre>
+
+  <p>
+    The colormap used for the diagrams is <code>YlGnBu_r</code>.
+
+  <script>renderMathInElement(document.body);</script>
+</body>
+</html>
