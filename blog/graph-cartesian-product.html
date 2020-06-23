@@ -1,0 +1,47 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset='utf8'/>
+  <meta name='viewport' content='width=device-width, initial-scale=1'/>
+  <link rel='stylesheet' href='styles/document.css'/>
+  <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.1/katex.min.css'/>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.1/katex.min.js'></script>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.1/contrib/auto-render.min.js'></script>
+  <title>Graph Cartesian Product</title>
+</head>
+<body>
+  <h1>Graph Cartesian Product</h1>
+  <center>
+    <img src="static/graph-cartesian-product.png" width="75%" />
+  </center>
+  <p>
+    The cartesian product of two graphs, \( G \,\square\, H \) is defined as
+    the graph with vertex set \( V(G) \times V(H) \), and with edges such
+    that \( (x,y) \) and \( (x',y') \) are adjacent if one of the following is
+    true:
+
+    <ul>
+      <li>\( y = y' \), and \( xx' \in E(G) \)</li>
+      <li>\( x = x' \), and \( yy' \in E(H) \)</li>
+    </ul>
+
+  <p>
+    The graph \( C_4 \) (cycle on 4 nodes) can be expressed as the cartesian
+    product of two 2-node paths, \( C_4 = P_2 \,\square\, P_2 \). The first
+    diagram shows \( C_4 \,\square\, P_2 \) to get a &lsquo;cube&rsquo;;
+    doing it again with \( P_2 \) gives a graph that looks like a hypercube.
+
+  <p>
+    There are some easy results one can derive for the \( \square \) operation.
+    If we define equality as isomorphism, then the identity element is the graph
+    \( P_1 \) with one vetex and no edges, since \( G \,\square\,P_1 = G \) for all \( G \).
+    We also get commutativity \( G \,\square\, H = H \,\square\, G \),
+    and associativity \( G \,\square\, (H \,\square\, F) = (G \,\square\, H) \,\square\, F \).
+
+  <p>
+    Below we present some simplifications on some interesting results found in
+    <a href="https://www.cambridge.org/core/services/aop-cambridge-core/content/view/11C54FCF88D5C860650808B200EA8727/S0008414X00044898a.pdf/graphs_with_given_group_and_given_graphtheoretical_properties.pdf">Graphs with Given Group and Given Graph-Theoretical Properties [PDF]</a>.
+
+  <script>renderMathInElement(document.body);</script>
+</body>
+</html>
