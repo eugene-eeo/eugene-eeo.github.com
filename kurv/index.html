@@ -33,7 +33,7 @@ $ ls
   <li>
     Sign:
     <pre>
-$ kurv -sP id.priv file.txt &gt; file-signed.txt
+$ kurv -sk id.priv file.txt &gt; file-signed.txt
 $ cat file-signed.txt
 ...
 ----BEGIN KURV SIGNATURE----
@@ -44,9 +44,9 @@ $ cat file-signed.txt
   <li>
     Check:
     <pre>
-$ kurv -cp id.pub file-signed.txt
+$ kurv -ck id.pub file-signed.txt
 $ # or
-$ cat file-signed.txt | kurv -cp id.pub
+$ cat file-signed.txt | kurv -ck id.pub
 </pre>
 
     Keyring support using <code>$KURV_KEYRING</code>:
