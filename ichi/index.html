@@ -1,0 +1,76 @@
+<!doctype html5>
+<html>
+<head>
+<title>ichi</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body { max-width: 600px; margin: 1em auto;
+       font-family: sans-serif; }
+.content { padding: 0 0.5em; }
+#logo { font-size: 1.5em; background-color: initial; padding: 0; }
+pre   { background-color: #EEE; padding: 1em; }
+code  { background-color: #EEE; }
+</style>
+</head>
+<body>
+<div class='content'>
+<pre id='logo'>
+█ █▀▀ █░█ █
+█ █▄▄ █▀█ █
+</pre>
+<p>
+  Simple set of tools for signing / encryption, built on <a href='https://monocypher.org'>Monocypher</a>.
+</p>
+<h3>Signing</h3>
+<ul>
+  <li>support for pipes</li>
+  <li>produces armoured signatures</li>
+  <li>can sign arbitrarily long messages by signing <code>blake2b(M)</code></li>
+  <li>keyring support</li>
+</ul>
+<pre>
+# generate keypair
+$ kurv -g id
+$ cat id.{pub,priv}
+P/Vkey2lTatqY5dHpxgxPrdSnbv4cQih+Gn7Flgs1tQ=
+...
+
+# signing
+$ kurv -sk id.priv README
+...
+----BEGIN KURV SIGNATURE----
+bQ3Mx3Vb0tdmb1GF2f0jgLm8GJpvQhYFYe2kkrOHkno5
+yOhnAi2Dl9Gmpt/Tx9aG4VyWTUjfdVyx7QI1xrpgCQ==
+----END KURV SIGNATURE----
+
+# checking signatures
+$ kurv -ck id.pub signed-file &amp;&amp; echo "ok"
+ok
+</pre>
+
+<h3>Encryption</h3>
+<ul>
+  <li>no proof of sender</li>
+  <li>encrypt arbitrarily long messages</li>
+</ul>
+<pre>
+$ luck -g id
+$ echo "Hello World" \
+   | luck -ek id.pk  \ # encrypt for recepient
+   | luck -dk id.sk    # decrypt
+Hello World
+</pre>
+
+
+<h3>Install</h3>
+<pre>
+$ git clone https://github.com/eugene-eeo/ichi
+$ make install
+</pre>
+
+<h3>Download</h3>
+<p>
+  Source available on <a href='https://github.com/eugene-eeo/ichi'>Github</a>.
+</div>
+</body>
+</html>
