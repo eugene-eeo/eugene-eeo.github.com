@@ -1,0 +1,230 @@
+<!doctype html5>
+<html>
+<head>
+<title>ichi - lock stream format</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+body { max-width: 600px; margin: 1em auto;
+       font-family: sans-serif; }
+.content { padding: 0 0.5em; }
+#logo { font-size: 1.5em; background-color: initial; padding: 0; }
+pre   { background-color: #EEE; padding: 1em; }
+code  { background-color: #EEE; }
+table { border-collapse: collapse; }
+th,td { border: 1px solid #000; font-weight: normal; padding: 0.1em 1em; }
+</style>
+</head>
+<body>
+<div class='content'>
+<h1 id="lock-stream-format">Lock Stream Format</h1>
+<ul>
+  <li><a href="#overview">Overview</a></li>
+  <li><a href="#chunks">Chunks</a></li>
+  <li><a href="#kx-chunk"><code>KX</code> chunk</a></li>
+  <li><a href="#pdkf-chunk"><code>PDKF</code> chunk</a></li>
+  <li><a href="#block-chunk"><code>BLOCK</code> chunk</a></li>
+  <li><a href="#digest-chunk"><code>DIGEST</code> chunk</a></li>
+</ul>
+
+<h3 id="overview">Overview</h3>
+
+<p><code>luck</code> uses an encryption format inspired by
+Scuttlebutt&#8217;s <a href="https://ssbc.github.io/scuttlebutt-protocol-guide/#box-stream">box streams</a>.
+The Lock Stream format is split into 3 sections:</p>
+
+<table>
+<thead>
+<tr>
+  <th align="center">key chunk</th>
+  <th align="center">block stream</th>
+  <th align="center">digest chunk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td align="center"><code>KX | PDKF</code></td>
+  <td align="center"><code>BLOCK*</code></td>
+  <td align="center"><code>DIGEST</code></td>
+</tr>
+</tbody>
+</table>
+
+<ul>
+<li><strong>key chunk</strong> &#8211; determines the encryption key used; there are
+two modes (exactly one can be specified):
+<ol>
+<li><code>KX</code> &#8211; public-key encryption, only recepient with corresponding
+secret key can unlock the stream.</li>
+<li><code>PDKF</code> &#8211; password encryption, recepient that knows password can
+unlock the stream.</li>
+</ol></li>
+<li><strong>block stream</strong> &#8211; the content is encrypted and authenticated
+in fixed-size chunks of up to 4096 - this ensures that no individual
+block in the stream was tampered with.</li>
+<li><strong>digest chunk</strong> &#8211; contains a hash of the (unencrypted) content
+used for verifying that no tampering of the block stream was done.</li>
+</ul>
+
+<h3 id="chunks">Chunks</h3>
+
+<p>Each chunk has a leading byte known as the &#8216;head&#8217;.
+Reading the head then tells the decryption process how to
+continue processing the stream.
+In the format descriptions below, all integers are encoded
+in unsigned LE format.</p>
+
+<h3 id="kx-chunk"><code>KX</code> chunk</h3>
+
+<table>
+<thead>
+<tr>
+  <th align="center"><code>@</code></th>
+  <th align="center"><em>ephemeral pubkey</em></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td align="center"></td>
+  <td align="center">32 bytes</td>
+</tr>
+</tbody>
+</table>
+
+<p>During encryption, an ephemeral secret and public keypair is generated.
+The encryption key is then calculated as:</p>
+
+<pre><code>crypto_key_exchange(ephemeral_sk, recepient_pk)
+</code></pre>
+
+<p>The ephemeral public key is stored in the encryption. During decryption,
+the recepient supplies their secret key and the encryption key is then:</p>
+
+<pre><code>crypto_key_exchange(recepient_sk, ephemeral_pk)
+</code></pre>
+
+<h3 id="pdkf-chunk"><code>PDKF</code> chunk</h3>
+
+<table>
+<thead>
+<tr>
+  <th align="center"><code>#</code></th>
+  <th align="center"><em>memory cost</em></th>
+  <th align="center"><em>time cost</em></th>
+  <th align="center"><em>salt length</em></th>
+  <th align="center"><em>salt</em></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td align="center"></td>
+  <td align="center">4 bytes</td>
+  <td align="center">1 byte</td>
+  <td align="center">1 byte</td>
+  <td align="center"></td>
+</tr>
+</tbody>
+</table>
+
+<p>The memory cost (in KiB) is encoded as 4-byte unsigned LE,
+time cost (in iterations) as 1-byte, etc.
+Current parameters in <code>luck</code>:</p>
+
+<ul>
+<li>memory cost = 100 000 KiB (100 MB)</li>
+<li>time cost = 3</li>
+<li>salt length = 32</li>
+<li>salt is randomly generated</li>
+</ul>
+
+<p>During decryption, a password needs to be specified; the
+decryption key is then calculated as:</p>
+
+<pre><code>argon2i(password,
+        parallelism=1,
+        memory_cost=(memory cost) KiB,
+        time_cost=(time cost) iterations,
+        salt=salt)
+</code></pre>
+
+<h3 id="block-chunk"><code>BLOCK</code> chunk</h3>
+
+<table>
+<thead>
+<tr>
+  <th align="center"><code>b</code></th>
+  <th align="center"><em>mac1</em></th>
+  <th align="center"><em>encrypted length</em></th>
+  <th align="center"><em>mac2</em></th>
+  <th align="center"><em>encrypted payload</em></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td align="center"></td>
+  <td align="center">16 bytes</td>
+  <td align="center">2 bytes</td>
+  <td align="center">16 bytes</td>
+  <td align="center"></td>
+</tr>
+</tbody>
+</table>
+
+<p><code>BLOCK</code>s are produced by splitting up the original content into chunks
+(<em>payload</em>) of up to 4096 bytes. <em>length</em> denotes the length of the
+<em>payload</em> (in bytes).</p>
+
+<p>During encryption and decryption, initially the nonce is 24-bytes of 0s.
+It is incremented once to produce <em>mac1</em>, and again to produce <em>mac2</em>.
+When encrypting/decrypting the next <code>BLOCK</code>, make sure to use the
+incremented nonce &#8211; in this sense the <code>nonce</code> serves as a message
+counter. Values are produced as follows (in Monocypher):</p>
+
+<pre><code>increment_nonce(nonce);
+crypto_lock(mac1,
+            encrypted_length,
+            shared_key,
+            nonce,
+            length, 2);
+increment_nonce(nonce);
+crypto_lock(mac2,
+            encrypted_content,
+            shared_key,
+            nonce,
+            content, content_length);
+</code></pre>
+
+<p>Similar to the aforementioend Box Stream, <em>mac1</em> protects the <em>length</em>,
+and <em>mac2</em> protects the <em>payload</em>. Decryption is straightforward &#8211;
+just provide the MACs and payloads to the <code>crypto_unlock</code> functions,
+and increment the nonce appropriately.</p>
+
+<h3 id="digest-chunk"><code>DIGEST</code> chunk</h3>
+
+<table>
+<thead>
+<tr>
+  <th align="center"><code>$</code></th>
+  <th align="center"><em>digest</em></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+  <td align="center"></td>
+  <td align="center">64 bytes</td>
+</tr>
+</tbody>
+</table>
+
+<p>The <em>digest</em> is computed as:</p>
+
+<pre><code>blake2b(content, key=encryption key)
+</code></pre>
+
+<p>where <code>content</code> is the full, original content that was encrypted/decrypted.
+This ensures that the overall <code>BLOCK</code> stream hasn&#8217;t been tampered
+with (i.e. no blocks are added/removed).
+Upon decryption, <em>digest</em> needs to be compared with one computed
+by the decryptor.</p>
+</div>
+</body>
+</html>

@@ -52,13 +52,18 @@ ok
 <ul>
   <li>no proof of sender</li>
   <li>encrypt arbitrarily long messages</li>
+  <li>password / public key encryption</li>
+  <li>see <a href="./lock-stream-format.html">Lock Stream Format</a></li>
 </ul>
 <pre>
-$ luck -g id
-$ echo "Hello World" \
-   | luck -ek id.pk  \ # encrypt for recepient
+$ echo "Hello" \
+   | luck -ek id.pk \  # encrypt for recepient
    | luck -dk id.sk    # decrypt
-Hello World
+Hello
+$ echo "World" \
+   | luck -ep "password" \ # with password
+   | luck -dp "password"
+World
 </pre>
 
 
