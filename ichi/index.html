@@ -19,51 +19,64 @@ code  { background-color: #EEE; }
 █ █▄▄ █▀█ █
 </pre>
 <p>
-  Simple set of tools for signing / encryption, built on <a href='https://monocypher.org'>Monocypher</a>.
+  Simple set of tools for signing / encryption,
+  built on <a href='https://monocypher.org'>Monocypher</a>.
 </p>
 <h3>Signing</h3>
 <ul>
-  <li>support for pipes</li>
-  <li>produces armoured signatures</li>
-  <li>can sign arbitrarily long messages by signing <code>blake2b(M)</code></li>
+  <li>produce inline or detached signatures</li>
   <li>keyring support</li>
 </ul>
+<p>
+generate keys:
+
 <pre>
-# generate keypair
-$ kurv -g id
-$ cat id.{pub,priv}
-P/Vkey2lTatqY5dHpxgxPrdSnbv4cQih+Gn7Flgs1tQ=
-...
+$ ichi-keygen -S -b id
+</pre>
 
-# signing
-$ kurv -sk id.priv README
-...
-----BEGIN KURV SIGNATURE----
-bQ3Mx3Vb0tdmb1GF2f0jgLm8GJpvQhYFYe2kkrOHkno5
-yOhnAi2Dl9Gmpt/Tx9aG4VyWTUjfdVyx7QI1xrpgCQ==
-----END KURV SIGNATURE----
+<p>
+sign + verify (inline):
 
-# checking signatures
-$ kurv -ck id.pub signed-file &amp;&amp; echo "ok"
-ok
+<pre>
+$ echo "hello world!" \
+    | ichi-sign -k id.sign.key
+    | ichi-sign -V -p id.sign.pub
+ichi-sign: good signature by 'id.sign.pub'
 </pre>
 
 <h3>Encryption</h3>
 <ul>
-  <li>no proof of sender</li>
-  <li>encrypt arbitrarily long messages</li>
-  <li>password / public key encryption</li>
-  <li>see <a href="./lock-stream-format.html">Lock Stream Format</a></li>
+  <li>multiple recepients</li>
+  <li>trusted / untrusted encryption (can choose to
+      use your private key or not)</li>
 </ul>
+<p>
+generate keys:
+
 <pre>
-$ echo "Hello" \
-   | luck -ek id.pk \  # encrypt for recepient
-   | luck -dk id.sk    # decrypt
+$ ichi-keygen -L -b me
+$ ichi-keygen -L -b id1
+$ ichi-keygen -L -b id2
+</pre>
+
+<p>
+encrypt for `id1` and `id2`:
+
+<pre>
+$ ichi-lock -E \
+    -r id1.lock.pub \
+    -r id2.lock.pub \
+    -k me.lock.key  \
+    -o encrypted \
+    <(echo "Hello")
+</pre>
+
+<p>
+decrypt, and verify that `me` is the sender:
+
+<pre>
+$ ichi-lock -D -k id1.key -v me.lock.pub encrypted
 Hello
-$ echo "World" \
-   | luck -ep "password" \ # with password
-   | luck -dp "password"
-World
 </pre>
 
 
