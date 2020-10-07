@@ -61,11 +61,12 @@
     f_E(P,s) = sP
     $$
 
-    where \(P\) is a point on the curve, and \(s\) is some integer.
-    \(f_E(P,s)\) then produces another point on the curve. From the
-    ECDLP, if \(E\) was chosen appropriately then given \(Q = f_E(P,s)\)
-    and \(P\) it should be hard to find some \(s'\) such that
-    \(f_E(P,s') = Q\), which is exactly what we want.
+    where \(P\) is a point on \(E\), and \(s\) is some integer.
+    \(f_E(P,s)\) produces another point on the curve.
+    From ECDLP, if \(E\) and \(s\) were chosen appropriately then
+    given \(Q = f_E(P,s)\) and \(P\) it should be hard to find
+    some \(s'\) such that \(f_E(P,s') = Q\), which is exactly
+    what we want.
 
   <p>
     It is again quasi-commutative:
