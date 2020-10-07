@@ -1,0 +1,100 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset='utf8'/>
+  <meta name='viewport' content='width=device-width, initial-scale=1'/>
+  <link rel='stylesheet' href='styles/document.css'/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css" integrity="sha384-AfEj0r4/OFrOo5t7NnNe46zW/tFgW6x/bCJG8FqQCEo3+Aro6EYUG4+cU+KJWu/X" crossorigin="anonymous">
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.js" integrity="sha384-g7c+Jr9ZivxKLnZTDUhnkOnsh30B4H0rpLUpJ4jAIKs4fnJI+sEnkvrMWph2EDg4" crossorigin="anonymous"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/contrib/auto-render.min.js" integrity="sha384-mll67QQFJfxn0IYznZYonOWZ644AWYC+Pt2cHqMaRhXVrursRwvLnLaebdGIlYNa" crossorigin="anonymous"
+      onload="renderMathInElement(document.body);"></script>
+  <title>Elliptic Curve Accumulators</title>
+</head>
+<body>
+  <h1>Elliptic Curve Accumulators</h1>
+  <p>
+    A cryptographic accumulator<sup><a href="#1">[1]</a></sup>
+    is any function
+    \( f : X \times Y \rightarrow X \) that satisfies
+    quasi-commutativity:
+
+    $$
+    f(f(x, y_1), y_2) = f(f(x, y_2), y_1)
+    $$
+
+  <p>
+    We additionally require that given some \( x, y \) it is hard
+    to find an \( y' \) such that \( f(x, y) = f(x, y') \).
+    Typically, \(f\) is the RSA trapdoor &mdash; we agree on some
+    modulus \( n \) (that we do not know the factorisation of).
+
+    $$
+    f_n(x,y) = x^y \mod n
+    $$
+
+  <p>
+    It is easy to verify that \( f_n \) is quasi-commutative.
+
+  <p>
+    A less common choice for the 'hardness' of \( f \) is the
+    elliptic curve discrete logarithm problem (ECDLP) which
+    underpins most modern elliptic curve cryptography.
+    The ECDLP problem is as follows<sup><a href="#2">[2]</a></sup>:
+
+  <div class='outline'>
+    <b>ECDLP:</b>
+    Let E be an elliptic curve over \(\mathbb{Z}/\mathbb{Z}_p\)
+    (suppose \(p\) is a large enough prime).
+    Given \(P\) and \(Q\) (some multiple of \(P\))
+    which are points on the curve, it is hard to find
+    \( n \in \mathbb{Z} \) supposing \( n \) is large such that:
+
+    $$ nP = Q $$
+  </div>
+
+  <p>
+    With that in mind there is an alternative based on
+    the ECDLP<sup><a href='#3'>[3]</a></sup> (we present here
+    with some modification):
+
+    $$
+    f_E(P,s) = sP
+    $$
+
+    where \(P\) is a point on the curve, and \(s\) is some integer.
+    \(f_E(P,s)\) then produces another point on the curve. From the
+    ECDLP, if \(E\) was chosen appropriately then given \(Q = f_E(P,s)\)
+    and \(P\) it should be hard to find some \(s'\) such that
+    \(f_E(P,s') = Q\), which is exactly what we want.
+
+  <p>
+    It is again quasi-commutative:
+
+    $$
+    f(f(P,s_1), s_2) = (s_1 s_2)P = f(f(P, s_2), s_1)
+    $$
+
+  <p>
+    We also get from the ECDLP for free, that accumulating more
+    values does not reduce the difficulty of the problem, since
+    each accumulation \(f_E(\ldots, s)\) produces <i>another</i>
+    point on \(E\).
+
+  <p>
+    Not relying on RSA has some advantages; one being that we
+    can build them into libraries like <a href='https://monocypher.org/'>Monocypher</a>
+    which do not implement any RSA operations.
+
+  <footer>
+    <p>
+    <a name='1'></a>
+    <b>[1]:</b> Benaloh &amp; de Mare: <a href='https://www.microsoft.com/en-us/research/wp-content/uploads/1993/01/owa.pdf'>One-Way Accumulators: A Decentralized Alternative to Digital Signatures</a>
+    <p>
+    <a name='2'></a>
+    <b>[2]:</b> <a href='https://wstein.org/edu/2007/spring/ent/ent-html/node89.html'>The Elliptic Curve Discrete Logarithm Problem</a>
+    <p>
+    <a name='3'></a>
+    <b>[3]:</b> T. Gebremichael, U. Jennehag, M. Gidlund: <a href='https://ieeexplore.ieee.org/document/8531034'>Lightweight IoT Group Key Establishment Scheme Using One-way Accumulator</a>
+  </footer>
+</body>
+</html>
